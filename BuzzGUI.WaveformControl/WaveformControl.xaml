@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="BuzzGUI.WaveformControl.WaveformControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:l="clr-namespace:BuzzGUI.WaveformControl"
+             xmlns:common="clr-namespace:BuzzGUI.Common;assembly=BuzzGUI.Common"
+             UseLayoutRounding="True" TextOptions.TextFormattingMode="Display"
+             >
+    <UserControl.Resources>
+        <LinearGradientBrush x:Key="FillBrush" StartPoint="0,0" EndPoint="0,100" Opacity="1.0" MappingMode="Absolute">
+            <GradientStop Color="#DFD" Offset="0"/>
+            <GradientStop Color="#5A5" Offset="0.5"/>
+            <GradientStop Color="#DFD" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BackgroundBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="AliceBlue" Offset="0.0" />
+            <GradientStop Color="AliceBlue" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <Style x:Key="WaveformControlBorderStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="#888"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <SolidColorBrush x:Key="MidlineBrush" Color="Black" Opacity="0.4"></SolidColorBrush>
+        <SolidColorBrush x:Key="CursorBrush" Color="Navy" Opacity="0.8"></SolidColorBrush>
+        <SolidColorBrush x:Key="AdjustmentTargetBrush" Color="Red" Opacity="0.8"></SolidColorBrush>
+        <SolidColorBrush x:Key="SelectionBrush" Color="Black" Opacity="0.2"></SolidColorBrush>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource WaveformControlBorderStyle}" ClipToBounds="True">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="10"/>
+            </Grid.ColumnDefinitions>
+
+            <ScrollViewer Grid.Row="0" Grid.ColumnSpan="6"  HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" CanContentScroll="True" Name="sv">
+                <l:WaveformElement x:Name="waveformElement" Waveform="{Binding Waveform}" SnapsToDevicePixels="True" 
+                    common:CommandBehavior.Event="SelectionChanged"
+                    common:CommandBehavior.Command="{Binding SelectionChangedCommand}"
+                    common:CommandBehavior.CommandParameter="{Binding ElementName=waveformElement, Path=Selection }">
+                </l:WaveformElement>
+                <ScrollViewer.ContextMenu>
+                    <ContextMenu Name="contextMenu" >
+                        <MenuItem Header="Set Loop" Command="{Binding Path=SetLoopCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="Delete" Command="{Binding Path=DeleteEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="Trim" Command="{Binding Path=TrimEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="SaveSelection" ToolTip="Saves selection to next available waveslot" Command="{Binding Path=SaveSelectionCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
+                        <MenuItem Header="Fade">
+                            <MenuItem Header="Fade In Linear" Command="{Binding Path=FadeInLinearCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
+                            <MenuItem Header="Fade Out Linear" Command="{Binding Path=FadeOutLinearCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
+                        </MenuItem>
+                        <MenuItem Header="Reverse" Command="{Binding Path=ReverseEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="Normalize" Command="{Binding Path=NormalizeEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="Mute" Command="{Binding Path=MuteCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="Gain" Command="{Binding Path=GainEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="Phase Invert" Command="{Binding Path=PhaseInvertCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="Insert Silence" Command="{Binding Path=InsertSilenceCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                    </ContextMenu>
+                </ScrollViewer.ContextMenu>
+            </ScrollViewer>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="{Binding ElementName=waveformElement, Path=Offset}" HorizontalAlignment="Left"/>
+            <Label Grid.Row="1" Grid.Column="1" Content="{Binding ElementName=waveformElement, Path=OffsetInHex}" HorizontalAlignment="Left"/>
+            <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=waveformElement, Path=SelectionString}" HorizontalAlignment="Left"/>
+            <Button Visibility="Hidden" Grid.Row="1" Grid.Column="4" Content="In" Command="{Binding Path=ZoomInCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" />
+            <Button Visibility="Hidden" Grid.Row="1" Grid.Column="5" Content="Out" />
+        </Grid>
+    </Border>
+
+</UserControl>
