@@ -234,6 +234,9 @@ namespace BuzzGUI.Common
             //we need to backup the whole slot with all layers contained
             List<TemporaryWave> backupLayers = BackupLayersInSlot(sourceSlot.Layers);
 
+            //clear the whole slot, we're going to rebuild it without the layer that should get cleared
+            WaveCommandHelpers.ClearWaveSlot(wavetable, sourceSlotIndex);
+
             bool add = false; //first layer allocates the whole slot
             foreach (TemporaryWave sourceLayer in backupLayers)
             {
