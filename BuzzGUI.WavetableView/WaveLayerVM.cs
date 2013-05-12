@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Windows.Input;
 using BuzzGUI.Common;
 using BuzzGUI.Interfaces;
 
@@ -14,10 +15,19 @@ namespace BuzzGUI.WavetableView
 
 		public IWaveLayer Layer { get { return layer; } }
 
-		public WaveLayerVM(IWaveLayer layer)
-		{
-			this.layer = layer;
-		}
+        public ICommand ClearLayerCommand { get; private set; }
+        public WaveLayerVM(IWaveLayer layer)
+        {
+            this.layer = layer;
+            ClearLayerCommand = new SimpleCommand
+            {
+                CanExecuteDelegate = x => this.layer != null,
+                ExecuteDelegate = x =>
+                {
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("CLEAR PRESSED");
+                }
+            };
+        }
 
 		public int SampleCount { get { return layer.SampleCount; } }
 		public int SampleRate 
@@ -73,10 +83,6 @@ namespace BuzzGUI.WavetableView
 		public static IEnumerable<string> NoteList { get { return BuzzNote.Names; } }
 		public string RootNote { get { return BuzzNote.ToString(layer.RootNote); } set { layer.RootNote = BuzzNote.Parse(value); PropertyChanged.Raise(this, "RootNote"); } }
 
-		#region INotifyPropertyChanged Members
-
 		public event PropertyChangedEventHandler PropertyChanged;
-
-		#endregion
 	}
 }
