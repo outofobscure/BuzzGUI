@@ -47,10 +47,10 @@ namespace BuzzGUI.WavetableView
 						waves.Add(new WaveSlotVM(this, i) { Wave = w[i] });
 
                     waveformVm.Wavetable = wavetable;
-				}
+                }
            
 				PropertyChanged.RaiseAll(this);
-			}
+            }
 		}
 
         private int selectedWaveIndex = 0;
@@ -90,6 +90,11 @@ namespace BuzzGUI.WavetableView
             {
                 if (selectedItem.SelectedLayer != null)
                 {
+                    if (waveformVm.SelectedWave == null)
+                    {
+                        //fixes problem with no wave selected after loading a bmx resulting in exception when using editor
+                        waveformVm.SelectedWave = selectedItem.Wave;
+                    }
                     WaveformVm.Waveform = selectedItem.SelectedLayer.Layer;
                 }
                 else
@@ -116,7 +121,6 @@ namespace BuzzGUI.WavetableView
                 waveformVm = value;
                 PropertyChanged.RaiseAll(this);
             }
-
         }
 
 		public WavetableVM()
@@ -148,9 +152,8 @@ namespace BuzzGUI.WavetableView
 
 			wavePlayerMachines.Add(new MachineVM(null));
             WaveformVm = new WaveformVM();
-            
-            StickyFocus = true;
 
+            StickyFocus = true;
 		}
 
 		ObservableCollection<WaveSlotVM> waves;
@@ -165,7 +168,6 @@ namespace BuzzGUI.WavetableView
 		void wavetable_WaveChanged(int i)
 		{
             waves[i].Wave = wavetable.Waves[i];
-
             if (i == selectedWaveIndex && waveformVm.Waveform == null)
             {
                 waveformVm.Waveform = SelectedWaveform();
@@ -230,7 +232,7 @@ namespace BuzzGUI.WavetableView
                 SelectedWaveIndex = FindNextAvailableIndex(SelectedWaveIndex, wavetable.Waves);
                 OnPropertyChanged("SelectedWaveIndex");
             }
-		}
+        }
 
         public bool StickyFocus { get; set; }
 

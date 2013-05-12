@@ -84,8 +84,8 @@ namespace BuzzGUI.Common
             path = iPath;
             name = iName;
 
-            BuzzGUI.Common.Global.Buzz.DCWriteLine("layername: " + name);
-            BuzzGUI.Common.Global.Buzz.DCWriteLine("layerpath: " + path);
+            //BuzzGUI.Common.Global.Buzz.DCWriteLine("layername: " + name);
+            //BuzzGUI.Common.Global.Buzz.DCWriteLine("layerpath: " + path);
         }
 
         public void GetDataAsFloat(float[] output, int outoffset, int outstride, int channel, int offset, int count)

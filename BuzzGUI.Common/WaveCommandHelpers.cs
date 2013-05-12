@@ -128,7 +128,7 @@ namespace BuzzGUI.Common
             }
             else if (sourceLayer.ChannelCount == 1 && targetLayer.ChannelCount == 2) //convert mono to stereo
             {
-                BuzzGUI.Common.Global.Buzz.DCWriteLine("CONVERT TO STEREO");                
+                //BuzzGUI.Common.Global.Buzz.DCWriteLine("CONVERT TO STEREO");                
                 CopyAudioDataStereo(sourceLayer.Left, sourceLayer.Left, targetLayer, 0, targetLayer.SampleCount);
             }
         }
