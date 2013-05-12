@@ -22,7 +22,7 @@ namespace BuzzGUI.Common
             return newLayers;
         }
 
-        private static void RestoreLayerFromBackup(IWavetable wavetable, IWave sourceSlot, TemporaryWave sourceLayer, IWave targetSlot, bool add, bool ToFloat, bool ToStereo)
+        private static void RestoreLayerFromBackup(IWavetable wavetable, IWave sourceSlot, TemporaryWave sourceLayer, int targetSlotIndex, bool add, bool ToFloat, bool ToStereo)
         {
             //TODO REFACTOR ADD PARAM
             //can we set ADD to false if targetSlot.Index == 0 otherwise true ?
@@ -41,8 +41,8 @@ namespace BuzzGUI.Common
                 ChannelCount = 2; //target layer will have 2 channels and left will be copied to right automatically in CopyAudioData()
             }
 
-            wavetable.AllocateWave(targetSlot.Index, sourceLayer.Path, sourceLayer.Name, sourceLayer.SampleCount, wf, ChannelCount == 2, sourceLayer.RootNote, add, false);
-            var targetLayer = wavetable.Waves[targetSlot.Index].Layers.Last();
+            wavetable.AllocateWave(targetSlotIndex, sourceLayer.Path, sourceLayer.Name, sourceLayer.SampleCount, wf, ChannelCount == 2, sourceLayer.RootNote, add, false);
+            var targetLayer = wavetable.Waves[targetSlotIndex].Layers.Last();
             //BuzzGUI.Common.Global.Buzz.DCWriteLine("sourceLayer Channels: " + sourceLayer.ChannelCount.ToString());
             //BuzzGUI.Common.Global.Buzz.DCWriteLine("targetLayer Channels: " + targetLayer.ChannelCount.ToString());
             //BuzzGUI.Common.Global.Buzz.DCWriteLine("sourceLayer SampleCount: " + sourceLayer.SampleCount.ToString());
@@ -60,7 +60,7 @@ namespace BuzzGUI.Common
             //convenience method to call if sourceSlot == targetSlot
             //TODO REFACTOR ADD PARAM
             //can we set ADD to false if targetSlot.Index == 0 otherwise true ?
-            RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, sourceSlot, add, ToFloat, ToStereo);
+            RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, sourceSlot.Index, add, ToFloat, ToStereo);
         }
 
         private static void RestoreLayerFromBackup(IWavetable wavetable, IWave sourceSlot, TemporaryWave sourceLayer, bool add)
@@ -68,7 +68,7 @@ namespace BuzzGUI.Common
             //convenience method to call if sourceSlot == targetSlot and no conversions are needed
             //TODO REFACTOR ADD PARAM
             //can we set ADD to false if targetSlot.Index == 0 otherwise true ?
-            RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, sourceSlot, add, false, false);
+            RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, sourceSlot.Index, add, false, false);
         }
 
         private static void CopyMetaData(IWaveformBase sourceLayer, IWaveformBase targetLayer)
@@ -172,16 +172,23 @@ namespace BuzzGUI.Common
             {
                 IWave sourceSlot = wavetable.Waves[sourceSlotIndex];
 
+                //backup the whole slot with all layers contained
+                List<TemporaryWave> backupLayers = BackupLayersInSlot(sourceSlot.Layers);
+
                 bool add = false; //first layer allocates the whole slot
-                foreach (IWaveLayer sourceLayer in sourceSlot.Layers)
+                foreach (TemporaryWave sourceLayer in backupLayers)
                 {
-                    wavetable.AllocateWave(targetSlotIndex, sourceLayer.Path, sourceSlot.Name + "_copy", sourceLayer.SampleCount, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
+                    RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, targetSlotIndex, add, false, false);
+
+                    /*
+                    wavetable.AllocateWave(targetSlotIndex, sourceLayer.Path, sourceLayer.Name + "_copy", sourceLayer.SampleCount, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
                     IWave targetSlot = wavetable.Waves[targetSlotIndex]; //contains the slot we just allocated with AllocateWave
                     IWaveLayer targetLayer = targetSlot.Layers.Last(); //contains the layer we just allocated with AllocateWave
 
                     CopyMetaData(sourceLayer, targetLayer);
                     CopyAudioData(sourceLayer, targetLayer);
                     targetLayer.InvalidateData();
+                     */
 
                     add = true; //all subsequent layers are added to this slot
                 }
@@ -195,6 +202,7 @@ namespace BuzzGUI.Common
 
             if (targetLayerIndex == 0)
             {
+                //TODO the name should be the part of the filename without extenstion
                 wavetable.AllocateWave(targetSlotIndex, sourceLayer.Path, name, EndSample - StartSample, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, false, false);
                 IWave targetSlot = wavetable.Waves[targetSlotIndex]; //contains the slot we just allocated with AllocateWave           
                 IWaveLayer targetLayer = targetSlot.Layers.Last(); //contains the layer we just allocated with AllocateWave

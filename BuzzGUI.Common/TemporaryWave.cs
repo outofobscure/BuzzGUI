@@ -68,8 +68,6 @@ namespace BuzzGUI.Common
 
             InitializeWave(layer.ChannelCount, layer.Format, layer.SampleRate, layer.RootNote, layer.SampleCount, loopStart, layer.LoopEnd, layer.Path, System.IO.Path.GetFileNameWithoutExtension(layer.Path));
 
-            BuzzGUI.Common.Global.Buzz.DCWriteLine("layername: " + layer.Path);
-
             //we need to store the index to find out which one was selected when running a command that allocates again.
             index = WaveCommandHelpers.GetLayerIndex(layer);
         }
@@ -85,6 +83,8 @@ namespace BuzzGUI.Common
             loopEnd = iLoopEnd;
             path = iPath;
             name = iName;
+
+            BuzzGUI.Common.Global.Buzz.DCWriteLine("layername: " + name);       
         }
 
         public void GetDataAsFloat(float[] output, int outoffset, int outstride, int channel, int offset, int count)

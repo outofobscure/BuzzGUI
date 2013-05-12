@@ -177,7 +177,9 @@ namespace BuzzGUI.WavetableView
                         WaveClip wc = Clipboard.GetData("BuzzWaveClip") as WaveClip;
                         int fromIndex = wc.Index;
                         WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, fromIndex, index);
-                        //wt.Waves[index].Wave = wt.WaveClipboard;
+
+                        Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
+                        SelectedLayer = layers.FirstOrDefault(); //TODO ideally we would switch to the layer that was selected in the original here
                     }
                     // if contains audio
                     else if (Clipboard.ContainsAudio())
@@ -207,7 +209,7 @@ namespace BuzzGUI.WavetableView
                             // write to wavetable
                             int rootnote = BuzzNote.FromMIDINote(Math.Max(0, s.Instrument.basenote - 12));
 
-                            //TODO preserve name and path
+                            //TODO possible to set a real path and get the name from the path ?
                             Wavetable.Wavetable.AllocateWave(index,
                                                 "",
                                                 "Copy",
