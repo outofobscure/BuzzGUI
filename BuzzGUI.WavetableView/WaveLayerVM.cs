@@ -108,17 +108,8 @@ namespace BuzzGUI.WavetableView
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("ClearLayerCommand PRESSED");                  
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("on layer: " + WaveCommandHelpers.GetLayerIndex(layer).ToString());
 
-                    if (WaveSlot.Layers.Count == 1)
-                    {
-                        //clear the whole slot if this is the last layer in it
-                        WaveCommandHelpers.ClearWaveSlot(WaveSlot.Wavetable.Wavetable, WaveSlot.Wave.Index);
-                    }
-                    else
-                    {
-                        //remove the selected layer from the slot
-                        WaveCommandHelpers.ClearLayer(WaveSlot.Wavetable.Wavetable, WaveSlot.Wave.Index, WaveCommandHelpers.GetLayerIndex(layer));
-                    }
-
+                    //remove the selected layer from the slot
+                    WaveCommandHelpers.ClearLayer(WaveSlot.Wavetable.Wavetable, WaveSlot.Wave.Index, WaveCommandHelpers.GetLayerIndex(layer));
                 }
             };
         }

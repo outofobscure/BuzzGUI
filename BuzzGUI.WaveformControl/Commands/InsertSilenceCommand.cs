@@ -30,14 +30,14 @@ namespace BuzzGUI.WaveformControl.Commands
                 if (WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].ChannelCount == 1)
                 {
                     float[] left = new float[length];
-                    TemporaryWave inWave = new TemporaryWave(left, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote);
+                    TemporaryWave inWave = new TemporaryWave(left, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote, "", "");
                     WaveCommandHelpers.AddSelectionToLayer(Wavetable, WaveformVm.SelectedSlotIndex, WaveformVm.SelectedLayerIndex, cursorPos, inWave);
                 }
                 else if (WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].ChannelCount == 2)
                 {
                     float[] left = new float[length];
                     float[] right = new float[length];
-                    TemporaryWave inWave = new TemporaryWave(left, right, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote);
+                    TemporaryWave inWave = new TemporaryWave(left, right, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote, "", "");
                     WaveCommandHelpers.AddSelectionToLayer(Wavetable, WaveformVm.SelectedSlotIndex, WaveformVm.SelectedLayerIndex, cursorPos, inWave);
                 }
             }
@@ -69,14 +69,14 @@ namespace BuzzGUI.WaveformControl.Commands
                 if (WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].ChannelCount == 1)
                 {
                     float[] left = new float[length];
-                    TemporaryWave inWave = new TemporaryWave(left, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote);
+                    TemporaryWave inWave = new TemporaryWave(left, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote, "", "");
                     WaveCommandHelpers.AddSelectionToLayer(Wavetable, WaveformVm.SelectedSlotIndex, WaveformVm.SelectedLayerIndex, cursorPos, inWave);
                 }
                 else if (WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].ChannelCount == 2)
                 {
                     float[] left = new float[length];
                     float[] right = new float[length];
-                    TemporaryWave inWave = new TemporaryWave(left, right, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote);
+                    TemporaryWave inWave = new TemporaryWave(left, right, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].Format, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].SampleRate, WaveformVm.SelectedWave.Layers[WaveformVm.SelectedLayerIndex].RootNote, "", "");
                     WaveCommandHelpers.AddSelectionToLayer(Wavetable, WaveformVm.SelectedSlotIndex, WaveformVm.SelectedLayerIndex, cursorPos, inWave);
                 }
             }

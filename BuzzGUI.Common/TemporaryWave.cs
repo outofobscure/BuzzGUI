@@ -6,7 +6,7 @@ using BuzzGUI.Interfaces;
 
 namespace BuzzGUI.Common
 {
-    public class TemporaryWave : IWaveformBase
+    public class TemporaryWave : IWaveLayer
     {
         WaveFormat format;
         int sampleCount;
@@ -18,6 +18,8 @@ namespace BuzzGUI.Common
         float[] left;
         float[] right;
         int index;
+        string path;
+        string name;
 
         public WaveFormat Format { get { return format; } }
         public int SampleCount { get { return sampleCount; } }
@@ -26,27 +28,30 @@ namespace BuzzGUI.Common
         public int ChannelCount { get { return channelCount; } }
         public int LoopStart { get { return loopStart; } set { throw new NotImplementedException(); } }
         public int LoopEnd { get { return loopEnd; } set { throw new NotImplementedException(); } }
-        public float[] Left { get { return left; } set { throw new NotImplementedException(); } }
-        public float[] Right { get { return right; } set { throw new NotImplementedException(); } }
+        public float[] Left { get { return left; } private set { throw new NotImplementedException(); } }
+        public float[] Right { get { return right; } private set { throw new NotImplementedException(); } }
         public int Index { get { return index; } } //note, only valid for TemporaryWaves constructed trough an IWaveformBase
+        public string Path { get { return path; } }
+        public string Name { get { return name; } } //TODO do what must be done when the name changes
+        public IntPtr RawSamples { get; private set; }
 
         #pragma warning disable 67
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
-        public TemporaryWave(float[] DataLeft, WaveFormat iFormat, int iSampleRate, int iRootNote) //for mono
+        public TemporaryWave(float[] DataLeft, WaveFormat iFormat, int iSampleRate, int iRootNote, string iPath, string iName) //for mono
         {
             left = DataLeft;
-            InitializeWave(1, iFormat, iSampleRate, iRootNote, DataLeft.Length, 0, DataLeft.Length);
+            InitializeWave(1, iFormat, iSampleRate, iRootNote, DataLeft.Length, 0, DataLeft.Length, iPath, iName);
         }
 
-        public TemporaryWave(float[] DataLeft, float[] DataRight, WaveFormat iFormat, int iSampleRate, int iRootNote) //for stereo
+        public TemporaryWave(float[] DataLeft, float[] DataRight, WaveFormat iFormat, int iSampleRate, int iRootNote, string iPath, string iName) //for stereo
         {
             left = DataLeft;
             right = DataRight;
-            InitializeWave(2, iFormat, iSampleRate, iRootNote, DataLeft.Length, 0, DataLeft.Length);
+            InitializeWave(2, iFormat, iSampleRate, iRootNote, DataLeft.Length, 0, DataLeft.Length, iPath, iName);
         }
 
-        public TemporaryWave(IWaveformBase layer) //for making a copy of an existing layer
+        public TemporaryWave(IWaveLayer layer) //for making a copy of an existing layer
         {
             if (layer.ChannelCount == 1)
             {
@@ -61,13 +66,15 @@ namespace BuzzGUI.Common
                 layer.GetDataAsFloat(right, 0, 1, 1, 0, layer.SampleCount);
             }
 
-            InitializeWave(layer.ChannelCount, layer.Format, layer.SampleRate, layer.RootNote, layer.SampleCount, loopStart, layer.LoopEnd);
+            InitializeWave(layer.ChannelCount, layer.Format, layer.SampleRate, layer.RootNote, layer.SampleCount, loopStart, layer.LoopEnd, layer.Path, System.IO.Path.GetFileNameWithoutExtension(layer.Path));
+
+            BuzzGUI.Common.Global.Buzz.DCWriteLine("layername: " + layer.Path);
 
             //we need to store the index to find out which one was selected when running a command that allocates again.
             index = WaveCommandHelpers.GetLayerIndex(layer);
         }
 
-        private void InitializeWave(int iChannelCount, WaveFormat iFormat, int iSampleRate, int iRootNote, int iSampleCount, int iLoopStart, int iLoopEnd)
+        private void InitializeWave(int iChannelCount, WaveFormat iFormat, int iSampleRate, int iRootNote, int iSampleCount, int iLoopStart, int iLoopEnd, string iPath, string iName)
         {
             channelCount = iChannelCount;
             format = iFormat;
@@ -76,6 +83,8 @@ namespace BuzzGUI.Common
             sampleCount = iSampleCount;
             loopStart = iLoopStart;
             loopEnd = iLoopEnd;
+            path = iPath;
+            name = iName;
         }
 
         public void GetDataAsFloat(float[] output, int outoffset, int outstride, int channel, int offset, int count)

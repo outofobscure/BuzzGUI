@@ -41,7 +41,7 @@ namespace BuzzGUI.Common
                 ChannelCount = 2; //target layer will have 2 channels and left will be copied to right automatically in CopyAudioData()
             }
 
-            wavetable.AllocateWave(targetSlot.Index, "", sourceSlot.Name, sourceLayer.SampleCount, wf, ChannelCount == 2, sourceLayer.RootNote, add, false);
+            wavetable.AllocateWave(targetSlot.Index, sourceLayer.Path, sourceLayer.Name, sourceLayer.SampleCount, wf, ChannelCount == 2, sourceLayer.RootNote, add, false);
             var targetLayer = wavetable.Waves[targetSlot.Index].Layers.Last();
             //BuzzGUI.Common.Global.Buzz.DCWriteLine("sourceLayer Channels: " + sourceLayer.ChannelCount.ToString());
             //BuzzGUI.Common.Global.Buzz.DCWriteLine("targetLayer Channels: " + targetLayer.ChannelCount.ToString());
@@ -165,6 +165,8 @@ namespace BuzzGUI.Common
 
         public static void CopyWaveSlotToWaveSlot(IWavetable wavetable, int sourceSlotIndex, int targetSlotIndex)
         {
+            //TODO THE LAYER NAME!
+
             //Copy all layers into a new slot
             if (sourceSlotIndex != targetSlotIndex)
             {
@@ -173,7 +175,7 @@ namespace BuzzGUI.Common
                 bool add = false; //first layer allocates the whole slot
                 foreach (IWaveLayer sourceLayer in sourceSlot.Layers)
                 {
-                    wavetable.AllocateWave(targetSlotIndex, "", sourceSlot.Name + "_copy", sourceLayer.SampleCount, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
+                    wavetable.AllocateWave(targetSlotIndex, sourceLayer.Path, sourceSlot.Name + "_copy", sourceLayer.SampleCount, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
                     IWave targetSlot = wavetable.Waves[targetSlotIndex]; //contains the slot we just allocated with AllocateWave
                     IWaveLayer targetLayer = targetSlot.Layers.Last(); //contains the layer we just allocated with AllocateWave
 
@@ -193,7 +195,7 @@ namespace BuzzGUI.Common
 
             if (targetLayerIndex == 0)
             {
-                wavetable.AllocateWave(targetSlotIndex, "", name, EndSample - StartSample, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, false, false);
+                wavetable.AllocateWave(targetSlotIndex, sourceLayer.Path, name, EndSample - StartSample, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, false, false);
                 IWave targetSlot = wavetable.Waves[targetSlotIndex]; //contains the slot we just allocated with AllocateWave           
                 IWaveLayer targetLayer = targetSlot.Layers.Last(); //contains the layer we just allocated with AllocateWave
 
@@ -229,6 +231,8 @@ namespace BuzzGUI.Common
 
         public static void ClearLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex)
         {
+            //TODO its possible to end up with an unnamed slot
+
             IWave sourceSlot = wavetable.Waves[sourceSlotIndex];
 
             //we need to backup the whole slot with all layers contained
@@ -266,7 +270,7 @@ namespace BuzzGUI.Common
                 {
                     if (sourceLayer.Index == sourceLayerIndex) //only delete from the selected layer
                     {
-                        wavetable.AllocateWave(sourceSlotIndex, "", sourceSlot.Name, sourceLayer.Left.Length - (EndSample - StartSample), sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
+                        wavetable.AllocateWave(sourceSlotIndex, sourceLayer.Path, sourceLayer.Name, sourceLayer.Left.Length - (EndSample - StartSample), sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
                         IWaveLayer targetLayer = wavetable.Waves[sourceSlotIndex].Layers.Last();
 
                         if (sourceLayer.ChannelCount == 1)
@@ -314,7 +318,7 @@ namespace BuzzGUI.Common
                 {
                     if (sourceLayer.Index == sourceLayerIndex) //only trim the selected layer
                     {
-                        wavetable.AllocateWave(sourceSlotIndex, "", sourceSlot.Name, EndSample - StartSample, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
+                        wavetable.AllocateWave(sourceSlotIndex, sourceLayer.Path, sourceLayer.Name, EndSample - StartSample, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
                         var targetLayer = wavetable.Waves[sourceSlotIndex].Layers.Last();
 
                         if (sourceLayer.ChannelCount == 1)
@@ -358,7 +362,7 @@ namespace BuzzGUI.Common
             {
                 if (sourceLayer.Index == sourceLayerIndex) //only add to the selected layer
                 {
-                    wavetable.AllocateWave(sourceSlotIndex, "", sourceSlot.Name, sourceLayer.Left.Length + inputLayer.SampleCount, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
+                    wavetable.AllocateWave(sourceSlotIndex, sourceLayer.Path, sourceLayer.Name, sourceLayer.Left.Length + inputLayer.SampleCount, sourceLayer.Format, sourceLayer.ChannelCount == 2, sourceLayer.RootNote, add, false);
                     var targetLayer = wavetable.Waves[sourceSlotIndex].Layers.Last();
 
                     // check input format matches destination format

@@ -206,6 +206,8 @@ namespace BuzzGUI.WavetableView
 
                             // write to wavetable
                             int rootnote = BuzzNote.FromMIDINote(Math.Max(0, s.Instrument.basenote - 12));
+
+                            //TODO preserve name and path
                             Wavetable.Wavetable.AllocateWave(index,
                                                 "",
                                                 "Copy",
