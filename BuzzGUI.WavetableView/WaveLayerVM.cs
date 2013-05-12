@@ -11,20 +11,114 @@ namespace BuzzGUI.WavetableView
 {
 	public class WaveLayerVM : INotifyPropertyChanged
 	{
+        WaveSlotVM WaveSlot;
 		IWaveLayer layer;
 
 		public IWaveLayer Layer { get { return layer; } }
 
+        public ICommand LoadLayerCommand { get; private set; }
+        public ICommand SaveLayerCommand { get; private set; }
+        public ICommand PlayLayerCommand { get; private set; }
+        public ICommand StopLayerCommand { get; private set; }
+        public ICommand CopyLayerCommand { get; private set; }
+        public ICommand PasteLayerCommand { get; private set; }
+        public ICommand AddLayerCommand { get; private set; }
         public ICommand ClearLayerCommand { get; private set; }
-        public WaveLayerVM(IWaveLayer layer)
+
+        public WaveLayerVM(WaveSlotVM slot, IWaveLayer layer)
         {
+            WaveSlot = slot;
             this.layer = layer;
+
+            LoadLayerCommand = new SimpleCommand
+            {
+                ExecuteDelegate = wavelist =>
+                {
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("LoadLayerCommand PRESSED");
+                }
+            };
+
+            //SaveLayerCommand = new Commands.SaveFileCommand(this); //TODO add layer param to savefilecommand
+
+            PlayLayerCommand = new SimpleCommand
+            {
+                //CanExecuteDelegate = x => wave != null, //TODO
+                ExecuteDelegate = x => 
+                {
+                    //if (wave != null) wave.Play(SelectedWavePlayerMachine.Machine); //TODO 
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("PlayLayerCommand PRESSED");
+                }
+            };
+
+            StopLayerCommand = new SimpleCommand
+            {
+                //CanExecuteDelegate = x => wave != null, //TODO
+                ExecuteDelegate = x => 
+                {
+                    //wave.Stop(SelectedWavePlayerMachine.Machine); //TODO
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("StopLayerCommand PRESSED");
+                }
+            };
+
+            CopyLayerCommand = new SimpleCommand
+            {
+                //CanExecuteDelegate = x => wave != null, //TODO
+                ExecuteDelegate = x =>
+                {
+                    /* TODO
+                    // audio to the clipboard
+                    var ms = new MemoryStream();
+                    var il = wave.Layers[0];
+                    il.SaveAsWAV(ms);
+                    System.Windows.Clipboard.SetAudio(ms);
+
+                    // 
+                    Clipboard.SetData("BuzzWaveClip", new WaveClip(index));
+                    //wt.WaveClipboard = wt.Waves[index].Wave;
+                    */
+
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("CopyLayerCommand PRESSED");
+                
+                }
+            };
+
+            PasteLayerCommand = new SimpleCommand
+            {
+                //TODO CanExecuteDelegate
+                ExecuteDelegate = x =>
+                {
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand PRESSED");
+                }
+            };
+
+            AddLayerCommand = new SimpleCommand
+            {
+                //TODO CanExecuteDelegate
+                ExecuteDelegate = x =>
+                {
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("AddLayerCommand PRESSED");
+                }
+            };
+
             ClearLayerCommand = new SimpleCommand
             {
                 CanExecuteDelegate = x => this.layer != null,
                 ExecuteDelegate = x =>
                 {
-                    BuzzGUI.Common.Global.Buzz.DCWriteLine("CLEAR PRESSED");
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("ClearLayerCommand PRESSED");                  
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("on layer: " + WaveCommandHelpers.GetLayerIndex(layer).ToString());
+
+                    if (WaveSlot.Layers.Count == 1)
+                    {
+                        //clear the whole slot if this is the last layer in it
+                        WaveCommandHelpers.ClearWaveSlot(WaveSlot.Wavetable.Wavetable, WaveSlot.Wave.Index);
+                    }
+                    else
+                    {
+                        //remove the selected layer from the slot
+                        WaveCommandHelpers.ClearLayer(WaveSlot.Wavetable.Wavetable, WaveSlot.Wave.Index, WaveCommandHelpers.GetLayerIndex(layer));
+                    }
+
                 }
             };
         }

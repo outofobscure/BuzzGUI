@@ -227,6 +227,28 @@ namespace BuzzGUI.Common
             }
         }
 
+        public static void ClearLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex)
+        {
+            IWave sourceSlot = wavetable.Waves[sourceSlotIndex];
+
+            //we need to backup the whole slot with all layers contained
+            List<TemporaryWave> backupLayers = BackupLayersInSlot(sourceSlot.Layers);
+
+            bool add = false; //first layer allocates the whole slot
+            foreach (TemporaryWave sourceLayer in backupLayers)
+            {
+                if (sourceLayer.Index == sourceLayerIndex) //only delete from the selected layer
+                {
+                    //do no restore the selected layer so it gets dropped
+                }
+                else
+                {
+                    RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, add);
+                }
+                add = true;
+            }
+        }
+
         public static void DeleteSelectionFromLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int StartSample, int EndSample)
         {
             IWave sourceSlot = wavetable.Waves[sourceSlotIndex];

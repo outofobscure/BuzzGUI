@@ -40,7 +40,7 @@ namespace BuzzGUI.WavetableView
                     wave.PropertyChanged += wave_PropertyChanged;
                     foreach (var x in wave.Layers) 
                     {
-                        layers.Add(new WaveLayerVM(x));
+                        layers.Add(new WaveLayerVM(this, x));
                     }
 
                     if (Wavetable.WaveformVm.SelectedLayerIndex != -1)
