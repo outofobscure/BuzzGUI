@@ -53,8 +53,15 @@ namespace BuzzGUI.WavetableView
                         }
                         else
                         {
-                            //the event is fired for every layer, so until the layer index is lower than the one the user operate on, set selected layer to null (otherwise it throws an exception)
-                            SelectedLayer = null;
+                            //but the event is fired for every layer, so while the SelectedLayerIndex is lower than the one the user operate on, set selected layer to the first or null (otherwise it throws an exception)
+                            if (Layers.Count > 0)
+                            {
+                                SelectedLayer = layers.FirstOrDefault();
+                            }
+                            else
+                            {
+                                SelectedLayer = null;
+                            }
                         }
                     }
                     else
