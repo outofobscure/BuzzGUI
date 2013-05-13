@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
 using BuzzGUI.Common;
+using BuzzGUI.Common.InterfaceExtensions;
 using BuzzGUI.Interfaces;
 
 namespace BuzzGUI.WavetableView
@@ -62,31 +65,42 @@ namespace BuzzGUI.WavetableView
 
             CopyLayerCommand = new SimpleCommand
             {
-                //CanExecuteDelegate = x => wave != null, //TODO
+                CanExecuteDelegate = x => WaveSlot.Wave != null && layer !=null,
                 ExecuteDelegate = x =>
                 {
-                    /* TODO
                     // audio to the clipboard
                     var ms = new MemoryStream();
-                    var il = wave.Layers[0];
-                    il.SaveAsWAV(ms);
-                    System.Windows.Clipboard.SetAudio(ms);
+                    layer.SaveAsWAV(ms);
+                    Clipboard.SetAudio(ms);
 
-                    // 
-                    Clipboard.SetData("BuzzWaveClip", new WaveClip(index));
-                    //wt.WaveClipboard = wt.Waves[index].Wave;
-                    */
+                    // internal copy
+                    Clipboard.SetData("BuzzWaveLayerClip", new WaveLayerClip(WaveSlot.Wave.Index, WaveCommandHelpers.GetLayerIndex(layer)));
 
-                    BuzzGUI.Common.Global.Buzz.DCWriteLine("CopyLayerCommand PRESSED");
-                
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("CopyLayerCommand PRESSED");               
                 }
             };
 
             PasteLayerCommand = new SimpleCommand
             {
-                //TODO CanExecuteDelegate
+                CanExecuteDelegate = x => (Clipboard.ContainsAudio() || Clipboard.ContainsData("BuzzWaveLayerClip")),
                 ExecuteDelegate = x =>
                 {
+                    // if we have a wavelayer in our clipboard
+                    if (Clipboard.ContainsData("BuzzWaveLayerClip"))
+                    {
+                        WaveLayerClip wc = Clipboard.GetData("BuzzWaveLayerClip") as WaveLayerClip;
+                        int targetSlotIndex = WaveSlot.Wave.Index; //need to save this
+                        int targetLayerIndex = WaveCommandHelpers.GetLayerIndex(layer); //need to save this
+                        WaveCommandHelpers.CopyLayerToLayer(WaveSlot.Wavetable.Wavetable, wc.SourceSlotIndex, wc.SourceLayerIndex, targetSlotIndex, targetLayerIndex);
+
+                        WaveSlot.Wavetable.SelectedItem = WaveSlot.Wavetable.Waves[targetSlotIndex]; //need to set this again otherwise there's an exception when editing in the wave editor
+                        WaveSlot.SelectedLayer = WaveSlot.Wavetable.Waves[targetSlotIndex].Layers[targetLayerIndex]; //get by indices because WaveSlotVM might have changed
+                        BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand INTERNAL");
+                    }
+                    // if contains audio
+                    else if (Clipboard.ContainsAudio())
+                    {
+                    }
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand PRESSED");
                 }
             };
@@ -169,5 +183,44 @@ namespace BuzzGUI.WavetableView
 		public string RootNote { get { return BuzzNote.ToString(layer.RootNote); } set { layer.RootNote = BuzzNote.Parse(value); PropertyChanged.Raise(this, "RootNote"); } }
 
 		public event PropertyChangedEventHandler PropertyChanged;
+
+
+        [Serializable]
+        private class WaveLayerClip
+        {
+            private int sourceSlotIndex = -1;
+            private int sourceLayerIndex = -1;
+
+            public int SourceSlotIndex
+            {
+                get
+                {
+                    return sourceSlotIndex;
+                }
+                private set
+                {
+                    sourceSlotIndex = value;
+                }
+            }
+
+            public int SourceLayerIndex
+            {
+                get
+                {
+                    return sourceLayerIndex;
+                }
+                private set
+                {
+                    sourceLayerIndex = value;
+                }
+            }
+
+            public WaveLayerClip(int iSourceSlotIndex, int iSourceLayerIndex)
+            {
+                sourceSlotIndex = iSourceSlotIndex;
+                sourceLayerIndex = iSourceLayerIndex;
+            }
+
+        }
 	}
 }

@@ -263,6 +263,36 @@ namespace BuzzGUI.Common
             }
         }
 
+        public static void CopyLayerToLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int targetSlotIndex, int targetLayerIndex)
+        {
+            //TODO CONVERSIONS MIGHT BE NECCESSARY!!!!!!!!!
+
+            IWave sourceSlot = wavetable.Waves[sourceSlotIndex];
+            IWave targetSlot = wavetable.Waves[targetSlotIndex];
+
+            TemporaryWave sourceLayer = new TemporaryWave(sourceSlot.Layers[sourceLayerIndex]);
+
+            //we need to backup the whole slot with all layers contained so we can operate on the target layer
+            List<TemporaryWave> backupLayers = BackupLayersInSlot(targetSlot.Layers);
+
+            bool add = false; //first layer allocates the whole slot
+            foreach (TemporaryWave targetLayer in backupLayers)
+            {
+                if (targetLayer.Index == targetLayerIndex) //only replace the selected layer
+                {
+                    //replace the targetLayer with the sourceLayer in the targetSlot
+                    RestoreLayerFromBackup(wavetable, targetSlot, sourceLayer, add);
+                }
+                else
+                {
+                    //the other layers in the targetSlot get restored unaltered
+                    RestoreLayerFromBackup(wavetable, targetSlot, targetLayer, add);
+                }
+                add = true;
+            }
+       
+        }
+
         public static void DeleteSelectionFromLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int StartSample, int EndSample)
         {
             IWave sourceSlot = wavetable.Waves[sourceSlotIndex];

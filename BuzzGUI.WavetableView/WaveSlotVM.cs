@@ -163,13 +163,12 @@ namespace BuzzGUI.WavetableView
                 {
                     // audio to the clipboard
                     var ms = new MemoryStream();
-                    var il = wave.Layers[0];
+                    var il = wave.Layers[0]; //TODO rethink this, can we copy the selected layer ?
                     il.SaveAsWAV(ms);
-                    System.Windows.Clipboard.SetAudio(ms);
+                    Clipboard.SetAudio(ms);
 
-                    // 
+                    // internal copy
                     Clipboard.SetData("BuzzWaveClip", new WaveClip(index));
-                    //wt.WaveClipboard = wt.Waves[index].Wave;
                 }
             };
 
@@ -182,11 +181,11 @@ namespace BuzzGUI.WavetableView
                     if (Clipboard.ContainsData("BuzzWaveClip"))
                     {
                         WaveClip wc = Clipboard.GetData("BuzzWaveClip") as WaveClip;
-                        int fromIndex = wc.Index;
-                        WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, fromIndex, index);
+                        int sourceLayerIndex = WaveCommandHelpers.GetLayerIndex(wt.Waves[wc.Index].SelectedLayer.Layer); //must save this
+                        WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, wc.Index, index);
 
                         Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
-                        SelectedLayer = layers.FirstOrDefault(); //TODO ideally we would switch to the layer that was selected in the original here
+                        SelectedLayer = wt.Waves[index].layers[sourceLayerIndex]; //switch to the same layer that was selected in the original
                     }
                     // if contains audio
                     else if (Clipboard.ContainsAudio())
