@@ -40,12 +40,10 @@
             </Grid.RowDefinitions>
             
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="180"/>
-                <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="10" />
-                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
 
             <ScrollViewer Grid.Row="0" Grid.ColumnSpan="6"  HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" CanContentScroll="True" Name="sv">
@@ -74,11 +72,10 @@
                 </ScrollViewer.ContextMenu>
             </ScrollViewer>
 
-            <Label Grid.Row="1" Grid.Column="0" Content="{Binding ElementName=waveformElement, Path=Offset}" HorizontalAlignment="Left"/>
-            <Label Grid.Row="1" Grid.Column="1" Content="{Binding ElementName=waveformElement, Path=OffsetInHex}" HorizontalAlignment="Left"/>
-            <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=waveformElement, Path=SelectionString}" HorizontalAlignment="Left"/>
-            <Button Visibility="Hidden" Grid.Row="1" Grid.Column="4" Content="In" Command="{Binding Path=ZoomInCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" />
-            <Button Visibility="Hidden" Grid.Row="1" Grid.Column="5" Content="Out" />
+            <Label Grid.Row="1" Grid.Column="0" Content="{Binding ElementName=waveformElement, Path=OffsetString}" HorizontalAlignment="Left"/>
+            <Label Grid.Row="1" Grid.Column="1" Content="{Binding ElementName=waveformElement, Path=SelectionString}" HorizontalAlignment="Left"/>
+            <Label Grid.Row="1" Grid.Column="2" Content="" HorizontalAlignment="Left"/>
+            <Label Grid.Row="1" Grid.Column="3" Content="{Binding ElementName=waveformElement, Path=WaveFormatString}" HorizontalAlignment="Right"/>
         </Grid>
     </Border>
 

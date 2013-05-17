@@ -44,7 +44,7 @@ namespace BuzzGUI.WaveformControl
         public IWaveformBase Waveform
         {
             get { return (IWaveformBase)GetValue(WaveformProperty); }
-            set { SetValue(WaveformProperty, value); }
+            set { SetValue(WaveformProperty, value);}
         }
 
         public void OnSelectionChanged(object sender, EventArgs e)
@@ -88,7 +88,6 @@ namespace BuzzGUI.WaveformControl
             OnPropertyChanged("WaveformSelectionTuple");
             OnPropertyChanged("Offset");
             OnPropertyChanged("CursorOffset");
-            OnPropertyChanged("OffsetInHex");
         }
 
 		public double SamplesPerPixel
@@ -127,7 +126,11 @@ namespace BuzzGUI.WaveformControl
             //editor.cb.WriteDC(string.Format("RecreateVisuals {0}ms", sw.ElapsedMilliseconds));
 
             SetHorizontalOffset(PlayCursor.OffsetSamples / resolution * sampleWidth - ViewportWidth / 2);
-		}
+
+
+            OnPropertyChanged("WaveFormatString");
+
+        }
 
 		int FitResolution
 		{
@@ -466,7 +469,6 @@ namespace BuzzGUI.WaveformControl
                 InvalidateScrollInfo();
                 OnPropertyChanged("Offset");
                 OnPropertyChanged("CursorOffset");
-                OnPropertyChanged("OffsetInHex");
             });
         }
 
@@ -531,7 +533,6 @@ namespace BuzzGUI.WaveformControl
                 InvalidateScrollInfo();
                 OnPropertyChanged("Offset");
                 OnPropertyChanged("CursorOffset");
-                OnPropertyChanged("OffsetInHex");
 
                 UpdateAdjustmentTargetVisual();
             }
@@ -721,7 +722,6 @@ namespace BuzzGUI.WaveformControl
 
             OnPropertyChanged("Offset");
             OnPropertyChanged("CursorOffset");
-            OnPropertyChanged("OffsetInHex");
         }
 
 		public void LineRight()
@@ -790,7 +790,6 @@ namespace BuzzGUI.WaveformControl
 
             OnPropertyChanged("Offset");
             OnPropertyChanged("CursorOffset");
-            OnPropertyChanged("OffsetInHex");
         }
 
 		public Rect MakeVisible(Visual visual, Rect rectangle)
@@ -917,21 +916,6 @@ namespace BuzzGUI.WaveformControl
             return Waveform == null ? 0 : (ExtentWidth * (sample / (Waveform.SampleCount))) - offset.X;
         }
 
-        public string SelectionString
-        {
-            get
-            {
-                if (Selection != null)
-                {
-                    return string.Format("Selection (samples): {0} to {1} | {2}", Selection.StartSample, Selection.EndSample, Selection.LengthInSamples);
-                }
-                else
-                {
-                    return "No Selection";
-                }
-            }
-        }
-
         void UpdateCursorPosition()
         {
             //TODO REFACTOR INTO CURSOR CLASS
@@ -969,19 +953,45 @@ namespace BuzzGUI.WaveformControl
             }
         }
 
+        public string OffsetString
+        {
+            get 
+            {
+                double frac = (PlayCursor.Offset / ExtentWidth);
+                return string.Format("CURSOR: {0} (samples) | {0:X4} (hex%)", PlayCursor.OffsetSamples, (int)(frac * 0xFFFE)); 
+            }
+        }
 
-        public string OffsetInHex
+        public string SelectionString
         {
             get
             {
-                double frac = (PlayCursor.Offset / ExtentWidth);
-                return string.Format("Hex %: {0:X4}", (int)(frac * 0xFFFE));
+                if (Selection != null)
+                {
+                    return string.Format("SELECTION: {0} to {1} | {2} (samples)", Selection.StartSample, Selection.EndSample, Selection.LengthInSamples);
+                }
+                else
+                {
+                    return "No Selection";
+                }
             }
         }
-        public string Offset
+
+        public string WaveFormatString
         {
-            get { return string.Format("Play Cursor (samples): {0}", PlayCursor.OffsetSamples); }
+            get
+            {
+                if (Waveform != null)
+                {
+                    return string.Format("{0} | {1}ch", Waveform.Format.ToString(), Waveform.ChannelCount.ToString());
+                }
+                else
+                {
+                    return "HELLO";
+                }
+            }
         }
+        
         #endregion
         
     }
