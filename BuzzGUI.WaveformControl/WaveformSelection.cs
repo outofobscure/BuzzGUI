@@ -20,7 +20,7 @@ namespace BuzzGUI.WaveformControl
         public int EndSample { get { return endSample; } set { endSample = Math.Min(value, element.Waveform.SampleCount); OnPropertyChanged("EndSample"); } }
         public int LengthInSamples { get { return Math.Max(0, (EndSample - StartSample)); } }
 
-        public AdjustmentTargetValue AdjustmentTarget { get { return adjustmentTarget; } set { adjustmentTarget = value; } }
+        public AdjustmentTargetValue AdjustmentTarget { get { return adjustmentTarget; } set { adjustmentTarget = value; OnPropertyChanged("AdjustmentTarget"); } }
 
         public double Start { get { return element.SampleToPosition(StartSample); } }
         public double End { get { return element.SampleToPosition(EndSample); } }
@@ -33,12 +33,12 @@ namespace BuzzGUI.WaveformControl
 
         public bool IsActive()
         {
-            return !Start.Equals(End);
+            return !StartSample.Equals(EndSample);
         }
 
-        public void Reset(double cursorSamplePosition) //todo this should always reset to 0 once we separate selection and cursor
+        public void Reset(int cursorSamplePosition)
         {
-            StartSample = EndSample = (int)cursorSamplePosition;
+            StartSample = EndSample = cursorSamplePosition;
         }
 
         public bool IsNearStart(double x)

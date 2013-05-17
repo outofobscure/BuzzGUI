@@ -46,7 +46,6 @@ namespace BuzzGUI.WaveformControl
 				}
 
 			};
-            DataContextChanged += new DependencyPropertyChangedEventHandler(UserControl1_DataContextChanged);
 
             NameScope.SetNameScope(contextMenu, NameScope.GetNameScope(this));
 
@@ -59,22 +58,15 @@ namespace BuzzGUI.WaveformControl
                     }
             };
 
-            waveformElement.SelectionChanged += new WaveformElement.ChangedEventHandler((t, e) =>
-            {
-                //
-            });
-
-            waveformElement.PlayCursor.PropertyChanged += PlayCursor_PropertyChanged;
-
+            waveformElement.SelectionChanged += new WaveformElement.ChangedEventHandler((t, e) =>  {});
+            waveformElement.PropertyChanged += waveformElement_PropertyChanged;
 		}
 
-        void PlayCursor_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        void waveformElement_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Offset")
+            if (e.PropertyName == "CursorOffset")
             {
-                WaveformCursor Cursor = (WaveformCursor)sender;
-
-                double ScreenOffset = (Cursor.Offset - waveformElement.ScrollOffset.X) % waveformElement.ActualWidth;
+                double ScreenOffset = (waveformElement.PlayCursor.Offset - waveformElement.ScrollOffset.X) % waveformElement.ActualWidth;
 
                 if (ScreenOffset < 0)
                 {
@@ -82,7 +74,7 @@ namespace BuzzGUI.WaveformControl
                 }
                 else
                 {
-                    if (Cursor.Offset - waveformElement.ActualWidth > waveformElement.ScrollOffset.X)
+                    if (waveformElement.PlayCursor.Offset - waveformElement.ActualWidth > waveformElement.ScrollOffset.X)
                     {
                         Canvas.SetLeft(TimelineCursor, waveformElement.ActualWidth);
                     }
@@ -92,34 +84,16 @@ namespace BuzzGUI.WaveformControl
                     }
                 }
 
-                BuzzGUI.Common.Global.Buzz.DCWriteLine("screen:" + ScreenOffset.ToString());
-                BuzzGUI.Common.Global.Buzz.DCWriteLine("cursor:" + Cursor.Offset.ToString());
-                BuzzGUI.Common.Global.Buzz.DCWriteLine("scroll:" + waveformElement.ScrollOffset.X.ToString());
+                //BuzzGUI.Common.Global.Buzz.DCWriteLine("screen:" + ScreenOffset.ToString());
+                //BuzzGUI.Common.Global.Buzz.DCWriteLine("cursor:" + waveformElement.PlayCursor.Offset.ToString());
+                //BuzzGUI.Common.Global.Buzz.DCWriteLine("scroll:" + waveformElement.ScrollOffset.X.ToString());
             }
-        }
-        void UserControl1_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            // You can also validate the data going into the DataContext using the event args
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Point p = Mouse.GetPosition(Timeline);
-            BuzzGUI.Common.Global.Buzz.DCWriteLine("CLICK:" + p.X.ToString());
-
-            //TODO this sucks why doesn't this happen automatically, refactor the cursor mess!
-            //waveformElement.PlayCursor.Offset = waveformElement.ScrollOffset.X + p.X;
-            waveformElement.PlayCursor.Offset = p.X;
-            waveformElement.PlayCursor.OffsetSamples = waveformElement.PositionToSample(waveformElement.PlayCursor.Offset);
-
-            //TODO this sucks too
-            if (waveformElement.Selection.IsActive() == false)
-            {
-                waveformElement.Selection.Reset(waveformElement.PlayCursor.OffsetSamples);                
-            }
-
-            waveformElement.UpdateVisuals(); //FUCK NO, not here... refactor
-
+            waveformElement.PlayCursor.OffsetSamples = waveformElement.PositionToSample(p.X);
         }
 	}
 }

@@ -24,9 +24,7 @@ namespace BuzzGUI.WaveformControl
 		int zoomLevel = 14;
 		int resolution;
 		SegmentVisual.Resources res;
-        //int cursorSamplePos = 0;
-        //double cursorOffset = 0;
-        public DrawingVisual cursorDrawingVisual; //TODO refactor cursor into its own class
+        public DrawingVisual cursorDrawingVisual;
         DrawingVisual selectionDrawingVisual;
         DrawingVisual adjustmentTargetVisual;
         IDisposable mouseOverObserver;
@@ -45,15 +43,6 @@ namespace BuzzGUI.WaveformControl
         {
             get { return (IWaveformBase)GetValue(WaveformProperty); }
             set { SetValue(WaveformProperty, value);}
-        }
-
-        public void OnSelectionChanged(object sender, EventArgs e)
-        {
-            UpdateCursorPosition();
-            UpdateSelection();
-            UpdateAdjustmentTargetVisual();
-            SelectionChanged(this, null);
-            OnPropertyChanged("SelectionString");
         }
 
         public static readonly DependencyProperty WaveformProperty =
@@ -77,7 +66,6 @@ namespace BuzzGUI.WaveformControl
             {
                 Selection.Reset(0);
                 PlayCursor.OffsetSamples = 0;
-                PlayCursor.Offset = 0;
             }
             WaveformChangeSelectionAndCursorExtracted();
             WaveformChanged();
@@ -86,8 +74,22 @@ namespace BuzzGUI.WaveformControl
         private void WaveformChangeSelectionAndCursorExtracted()
         {
             OnPropertyChanged("WaveformSelectionTuple");
-            OnPropertyChanged("OffsetString");
-            OnPropertyChanged("CursorOffset");
+        }
+
+        public int Resolution
+        {
+            get
+            {
+                return resolution;
+            }
+        }
+
+        public int SampleWidth
+        {
+            get
+            {
+                return sampleWidth;
+            }
         }
 
 		public double SamplesPerPixel
@@ -127,9 +129,9 @@ namespace BuzzGUI.WaveformControl
 
             SetHorizontalOffset(PlayCursor.OffsetSamples / resolution * sampleWidth - ViewportWidth / 2);
 
-
+            OnPropertyChanged("OffsetString");
+            OnPropertyChanged("SelectionString");
             OnPropertyChanged("WaveFormatString");
-
         }
 
 		int FitResolution
@@ -294,7 +296,7 @@ namespace BuzzGUI.WaveformControl
 			return SegmentVisualChildren.FirstOrDefault(x => x.Allocated && x.SampleIndex == index);
 		}
 
-        public void UpdateVisuals() //TODO no reason to be public once we cleaned up the cursor mess
+        void UpdateVisuals()
         {
             if (minMaxCache == null)
             {
@@ -336,10 +338,8 @@ namespace BuzzGUI.WaveformControl
             }
 
             UpdateCursorPosition();
-            UpdateSelection();
             UpdateAdjustmentTargetVisual();
-            OnPropertyChanged("OffsetString"); //TODO NOT HERE
-            OnPropertyChanged("SelectionString"); //TODO NOT HERE
+            UpdateSelection();
         }
 
 		VisualCollection children;
@@ -371,12 +371,14 @@ namespace BuzzGUI.WaveformControl
 			{
                 if (IsVisible)
                 {
+                    PlayCursor.PropertyChanged += PlayCursor_PropertyChanged;
                     Selection.PropertyChanged += OnSelectionChanged;
                     this.SizeChanged += new SizeChangedEventHandler(WaveformControl_SizeChanged);                    
                     UpdateVisuals();
                 }
                 else
                 {
+                    PlayCursor.PropertyChanged -= PlayCursor_PropertyChanged;
                     Selection.PropertyChanged -= OnSelectionChanged;
                     this.SizeChanged -= WaveformControl_SizeChanged;
                 }
@@ -390,6 +392,18 @@ namespace BuzzGUI.WaveformControl
             HandleSelection();
             HandleMouseOver();
 		}
+
+        void PlayCursor_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            UpdateCursorPosition();
+        }
+
+        public void OnSelectionChanged(object sender, EventArgs e)
+        {
+            UpdateSelection();
+            UpdateAdjustmentTargetVisual();
+            SelectionChanged(this, null);
+        }
 
         #region mouse interaction
         
@@ -478,8 +492,6 @@ namespace BuzzGUI.WaveformControl
                 //cursorSamplePos = Selection.StartSample; //we always want the cursor at the start of the selection so we can play it immediately
 
                 InvalidateScrollInfo();
-                OnPropertyChanged("OffsetString");
-                OnPropertyChanged("CursorOffset");
             });
         }
 
@@ -503,8 +515,6 @@ namespace BuzzGUI.WaveformControl
                 //there is no selection so we let the cursor key logic decide what to nudge
                 Selection.AdjustmentTarget = AdjustmentTargetValue.None;
             }
-
-            UpdateAdjustmentTargetVisual();
         }
 
         private void HandleMouseDown(MouseButtonEventArgs e)
@@ -537,15 +547,10 @@ namespace BuzzGUI.WaveformControl
                 {
                     //normal cursor movement
                     PlayCursor.OffsetSamples = PositionToSample(downPos);
-                    Selection.Reset(PlayCursor.OffsetSamples);
-                    UpdateCursorPosition();
+                    Selection.Reset(PlayCursor.OffsetSamples); //clicking on the waveform somewhere should always reset selection
                 }
                 Mouse.Capture(this);
                 InvalidateScrollInfo();
-                OnPropertyChanged("OffsetString");
-                OnPropertyChanged("CursorOffset");
-
-                UpdateAdjustmentTargetVisual();
             }
             else if (args.ChangedButton.Equals(MouseButton.Left) && (args.ClickCount == 2)) // double leftclick
             {
@@ -554,9 +559,7 @@ namespace BuzzGUI.WaveformControl
                 // select all
                 Selection.StartSample = 0;
                 Selection.EndSample = Waveform.SampleCount;
-                UpdateSelection();
             }
-
         }
 
         #endregion
@@ -730,9 +733,6 @@ namespace BuzzGUI.WaveformControl
                 //there is no selection after we moved start / end or the cursor, so the adjustment target must be reset and the next iteration decides what to adjust
                 Selection.AdjustmentTarget = AdjustmentTargetValue.None;
             }
-
-            OnPropertyChanged("OffsetString");
-            OnPropertyChanged("CursorOffset");
         }
 
 		public void LineRight()
@@ -798,9 +798,6 @@ namespace BuzzGUI.WaveformControl
                 //there is no selection after we moved start / end or the cursor, so the adjustment target must be reset and the next iteration decides what to adjust
                 Selection.AdjustmentTarget = AdjustmentTargetValue.None;
             }
-
-            OnPropertyChanged("OffsetString");
-            OnPropertyChanged("CursorOffset");
         }
 
 		public Rect MakeVisible(Visual visual, Rect rectangle)
@@ -929,9 +926,15 @@ namespace BuzzGUI.WaveformControl
 
         void UpdateCursorPosition()
         {
-            //TODO REFACTOR INTO CURSOR CLASS
-            PlayCursor.Offset = PlayCursor.OffsetSamples / resolution * sampleWidth;
             cursorDrawingVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset - scrollOffset.X), 0.0);
+
+            if (Selection.IsActive() == false)
+            {
+                Selection.Reset(PlayCursor.OffsetSamples); //if the selection is 0 samples we set the start and end of the selection to the new cursor position
+            }
+
+            OnPropertyChanged("CursorOffset");
+            OnPropertyChanged("OffsetString");
         }
 
         void UpdateSelection()
@@ -942,6 +945,8 @@ namespace BuzzGUI.WaveformControl
             {
                 dc.DrawRectangle(FindResource("SelectionBrush") as Brush, null, new Rect(0, 0, Selection.Width, this.ActualHeight));
             }
+
+            OnPropertyChanged("SelectionString");
         }
 
         void UpdateAdjustmentTargetVisual()
@@ -949,8 +954,6 @@ namespace BuzzGUI.WaveformControl
             switch (Selection.AdjustmentTarget)
             {
                 case AdjustmentTargetValue.None:
-                    //adjustmentTargetVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset), 0.0);
-                    //adjustmentTargetVisual.Offset = cursorDrawingVisual.Offset;
                     adjustmentTargetVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset - scrollOffset.X), 0.0);
                     break;
                 case AdjustmentTargetValue.Start:
@@ -968,8 +971,15 @@ namespace BuzzGUI.WaveformControl
         {
             get 
             {
-                double frac = (PlayCursor.Offset / ExtentWidth);
-                return string.Format("CURSOR: {0} (samples) | {0:X4} (hex%)", PlayCursor.OffsetSamples, (int)(frac * 0xFFFE)); 
+                if (Waveform != null)
+                {
+                    double frac = (PlayCursor.Offset / ExtentWidth);
+                    return string.Format("CURSOR: {0} (samples) | {0:X4} (hex%)", PlayCursor.OffsetSamples, (int)(frac * 0xFFFE));
+                }
+                else
+                {
+                    return "";
+                }
             }
         }
 
@@ -977,13 +987,20 @@ namespace BuzzGUI.WaveformControl
         {
             get
             {
-                if (Selection != null)
+                if (Waveform != null)
                 {
-                    return string.Format("SELECTION: {0} to {1} | {2} (samples)", Selection.StartSample, Selection.EndSample, Selection.LengthInSamples);
+                    if (Selection != null)
+                    {
+                        return string.Format("SELECTION: {0} to {1} | {2} (samples)", Selection.StartSample, Selection.EndSample, Selection.LengthInSamples);
+                    }
+                    else
+                    {
+                        return "";
+                    }
                 }
                 else
                 {
-                    return "No Selection";
+                    return "";
                 }
             }
         }

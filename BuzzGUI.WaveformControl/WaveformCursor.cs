@@ -9,12 +9,18 @@ namespace BuzzGUI.WaveformControl
     public class WaveformCursor : INotifyPropertyChanged
     {
         WaveformElement element;
-        double offset;
         int offsetSamples;
 
         public WaveformElement Element { get { return element; } }
-        public double Offset { get { return offset; } set { offset = value; OnPropertyChanged("Offset"); } }
-        public int OffsetSamples { get { return offsetSamples; } set { offsetSamples = Math.Min(Math.Max(0, value), element.Waveform.SampleCount);} }
+        public double Offset 
+        { 
+            get 
+            {
+                return OffsetSamples / element.Resolution * element.SampleWidth; 
+            } 
+        }
+
+        public int OffsetSamples { get { return offsetSamples; } set { offsetSamples = Math.Min(Math.Max(0, value), element.Waveform.SampleCount); OnPropertyChanged("OffsetSamples"); } }
 
         public WaveformCursor(WaveformElement element)
         {
