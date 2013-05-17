@@ -42,6 +42,15 @@ namespace BuzzGUI.WavetableView
             };
 
             //SaveLayerCommand = new Commands.SaveFileCommand(this); //TODO add layer param to savefilecommand
+            SaveLayerCommand = new SimpleCommand
+            {
+                CanExecuteDelegate = x => WaveSlot.Wave != null && layer != null,
+                ExecuteDelegate = x =>
+                {
+                    WaveCommandHelpers.SaveToFile(layer);
+                    BuzzGUI.Common.Global.Buzz.DCWriteLine("SaveLayerCommand PRESSED");
+                }
+            };
 
             PlayLayerCommand = new SimpleCommand
             {

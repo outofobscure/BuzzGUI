@@ -133,7 +133,11 @@ namespace BuzzGUI.WavetableView
                 }
             };
 
-            SaveCommand = new Commands.SaveFileCommand(this);
+            SaveCommand =  new SimpleCommand
+            {
+                CanExecuteDelegate = x => wave != null,
+                ExecuteDelegate = x => { if (wave != null) WaveCommandHelpers.SaveToFile(wave.Layers.LastOrDefault()); }
+            };
 
             PlayCommand = new SimpleCommand
             {
