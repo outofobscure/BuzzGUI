@@ -64,7 +64,24 @@ namespace BuzzGUI.WaveformControl
                 //
             });
 
+            waveformElement.PlayCursor.PropertyChanged += PlayCursor_PropertyChanged;
+
 		}
+
+        void PlayCursor_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Offset")
+            {
+                WaveformCursor Cursor = (WaveformCursor)sender;
+
+                double ScreenOffset = (Cursor.Offset - waveformElement.getOffset().X) % waveformElement.ActualWidth;
+
+                Canvas.SetLeft(TimelineCursor, Math.Floor(ScreenOffset));
+
+                BuzzGUI.Common.Global.Buzz.DCWriteLine(ScreenOffset.ToString());
+                //BuzzGUI.Common.Global.Buzz.DCWriteLine(waveformElement.ActualWidth.ToString());
+            }
+        }
         void UserControl1_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             // You can also validate the data going into the DataContext using the event args

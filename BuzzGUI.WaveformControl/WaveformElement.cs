@@ -350,6 +350,12 @@ namespace BuzzGUI.WaveformControl
 		int sampleWidth = 1; //todo make user adjustable for slower machines ?
 		int segmentWidth = 32;
 
+
+        public Point getOffset()
+        {
+            return offset;
+        }
+
 		public WaveformElement()
 		{
 			children = new VisualCollection(this);

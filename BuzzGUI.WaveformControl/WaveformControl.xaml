@@ -54,7 +54,9 @@
                 <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
 
-            <Canvas Grid.Row="0" Grid.ColumnSpan="4" Background="#999999"></Canvas>
+            <Canvas Grid.Row="0" Grid.ColumnSpan="4" Background="#999999">
+                <Canvas Name="TimelineCursor" Width="1" Height="20" Background="Black"></Canvas>
+            </Canvas>
 
             <ScrollViewer Style="{StaticResource WaveformElementStyle}" Grid.Row="1" Grid.ColumnSpan="4"  HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" CanContentScroll="True" Name="sv">
                 <l:WaveformElement x:Name="waveformElement" Waveform="{Binding Waveform}" SnapsToDevicePixels="True" 
