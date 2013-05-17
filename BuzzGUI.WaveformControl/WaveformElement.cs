@@ -987,7 +987,7 @@ namespace BuzzGUI.WaveformControl
                 }
                 else
                 {
-                    return "HELLO";
+                    return "";
                 }
             }
         }
