@@ -74,7 +74,7 @@ namespace BuzzGUI.WaveformControl
             {
                 WaveformCursor Cursor = (WaveformCursor)sender;
 
-                double ScreenOffset = (Cursor.Offset - waveformElement.getOffset().X) % waveformElement.ActualWidth;
+                double ScreenOffset = (Cursor.Offset - waveformElement.ScrollOffset.X) % waveformElement.ActualWidth;
 
                 Canvas.SetLeft(TimelineCursor, Math.Floor(ScreenOffset));
 

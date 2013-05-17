@@ -270,7 +270,7 @@ namespace BuzzGUI.WaveformControl
 		bool SegmentVisible(int index)
 		{
 			int w = segmentWidth * sampleWidth;
-			double x = Math.Floor(index * w - offset.X);
+			double x = Math.Floor(index * w - scrollOffset.X);
             return x > -w && x < ViewportWidth; // original
             //return x > -w && x < ViewportWidth+w; //exceptions
             //return x > 0 && x < ViewportWidth; // first segment not drawn
@@ -311,7 +311,7 @@ namespace BuzzGUI.WaveformControl
             {
                 if (!SegmentVisible(sv.SampleIndex))
                 {
-                    sv.Offset = new Vector(Math.Floor(sv.SampleIndex * sampleWidth * segmentWidth - offset.X), sv.Offset.Y); //TODO this fixes drawing artefacts, but why does it?
+                    sv.Offset = new Vector(Math.Floor(sv.SampleIndex * sampleWidth * segmentWidth - scrollOffset.X), sv.Offset.Y); //TODO this fixes drawing artefacts, but why does it?
                     FreeSegment(sv);
                 }
             }
@@ -330,7 +330,7 @@ namespace BuzzGUI.WaveformControl
                     }
 
                     //sv.Offset = new Vector(Math.Floor(i * sampleWidth * segmentWidth - offset.X), sv.Offset.Y);
-                    sv.Offset = new Vector(Math.Floor(i * sampleWidth * segmentWidth - offset.X), sv.Offset.Y);
+                    sv.Offset = new Vector(Math.Floor(i * sampleWidth * segmentWidth - scrollOffset.X), sv.Offset.Y);
                 }
 
             }
@@ -346,14 +346,17 @@ namespace BuzzGUI.WaveformControl
 		ScrollViewer owner;
 		Size extent = new Size(3000, 200);
 		Size viewport = new Size(0, 0);
-		Point offset = new Point(0, 0);
+		Point scrollOffset = new Point(0, 0);
 		int sampleWidth = 1; //todo make user adjustable for slower machines ?
 		int segmentWidth = 32;
 
 
-        public Point getOffset()
-        {
-            return offset;
+        public Point ScrollOffset
+        {        
+            get
+            {
+                return scrollOffset;
+            }
         }
 
 		public WaveformElement()
@@ -633,8 +636,8 @@ namespace BuzzGUI.WaveformControl
 		public double ExtentHeight { get { return extent.Height; } }
 		public double ViewportWidth { get { return viewport.Width; } }
 		public double ViewportHeight { get { return viewport.Height; } }
-		public double HorizontalOffset { get { return offset.X; } }
-		public double VerticalOffset { get { return offset.Y; } }
+		public double HorizontalOffset { get { return scrollOffset.X; } }
+		public double VerticalOffset { get { return scrollOffset.Y; } }
 
 		public void LineUp()
 		{
@@ -853,7 +856,7 @@ namespace BuzzGUI.WaveformControl
                 }
 			}
 
-			offset.X = newoffset;
+			scrollOffset.X = newoffset;
 
             if (owner != null)
             {
@@ -877,7 +880,7 @@ namespace BuzzGUI.WaveformControl
                 }
 			}
 
-			offset.Y = newoffset;
+			scrollOffset.Y = newoffset;
 
             if (owner != null)
             {
@@ -914,19 +917,19 @@ namespace BuzzGUI.WaveformControl
             {
                 pos = 0;
             }
-            return Math.Min(Waveform.SampleCount, (int)Math.Floor((pos + offset.X) * resolution / sampleWidth));
+            return Math.Min(Waveform.SampleCount, (int)Math.Floor((pos + scrollOffset.X) * resolution / sampleWidth));
         }
 
         internal double SampleToPosition(double sample)
         {
-            return Waveform == null ? 0 : (ExtentWidth * (sample / (Waveform.SampleCount))) - offset.X;
+            return Waveform == null ? 0 : (ExtentWidth * (sample / (Waveform.SampleCount))) - scrollOffset.X;
         }
 
         void UpdateCursorPosition()
         {
             //TODO REFACTOR INTO CURSOR CLASS
             PlayCursor.Offset = PlayCursor.OffsetSamples / resolution * sampleWidth;
-            cursorDrawingVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset - offset.X), 0.0);
+            cursorDrawingVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset - scrollOffset.X), 0.0);
         }
 
         void UpdateSelection()
@@ -946,7 +949,7 @@ namespace BuzzGUI.WaveformControl
                 case AdjustmentTargetValue.None:
                     //adjustmentTargetVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset), 0.0);
                     //adjustmentTargetVisual.Offset = cursorDrawingVisual.Offset;
-                    adjustmentTargetVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset - offset.X), 0.0);
+                    adjustmentTargetVisual.Offset = new Vector(Math.Floor(PlayCursor.Offset - scrollOffset.X), 0.0);
                     break;
                 case AdjustmentTargetValue.Start:
                     adjustmentTargetVisual.Offset = new Vector(Math.Floor(Selection.Start), 0.0);
