@@ -66,7 +66,7 @@ namespace BuzzGUI.Common
                 layer.GetDataAsFloat(right, 0, 1, 1, 0, layer.SampleCount);
             }
 
-            InitializeWave(layer.ChannelCount, layer.Format, layer.SampleRate, layer.RootNote, layer.SampleCount, loopStart, layer.LoopEnd, layer.Path, System.IO.Path.GetFileNameWithoutExtension(layer.Path));
+            InitializeWave(layer.ChannelCount, layer.Format, layer.SampleRate, layer.RootNote, layer.SampleCount, layer.LoopStart, layer.LoopEnd, layer.Path, System.IO.Path.GetFileNameWithoutExtension(layer.Path));
 
             //we need to store the index to find out which one was selected when running a command that allocates again.
             index = WaveCommandHelpers.GetLayerIndex(layer);
