@@ -86,7 +86,7 @@ namespace BuzzGUI.WaveformControl
         private void WaveformChangeSelectionAndCursorExtracted()
         {
             OnPropertyChanged("WaveformSelectionTuple");
-            OnPropertyChanged("Offset");
+            OnPropertyChanged("OffsetString");
             OnPropertyChanged("CursorOffset");
         }
 
@@ -467,7 +467,7 @@ namespace BuzzGUI.WaveformControl
                 //cursorSamplePos = Selection.StartSample; //we always want the cursor at the start of the selection so we can play it immediately
 
                 InvalidateScrollInfo();
-                OnPropertyChanged("Offset");
+                OnPropertyChanged("OffsetString");
                 OnPropertyChanged("CursorOffset");
             });
         }
@@ -531,7 +531,7 @@ namespace BuzzGUI.WaveformControl
                 }
                 Mouse.Capture(this);
                 InvalidateScrollInfo();
-                OnPropertyChanged("Offset");
+                OnPropertyChanged("OffsetString");
                 OnPropertyChanged("CursorOffset");
 
                 UpdateAdjustmentTargetVisual();
@@ -720,7 +720,7 @@ namespace BuzzGUI.WaveformControl
                 Selection.AdjustmentTarget = AdjustmentTargetValue.None;
             }
 
-            OnPropertyChanged("Offset");
+            OnPropertyChanged("OffsetString");
             OnPropertyChanged("CursorOffset");
         }
 
@@ -788,7 +788,7 @@ namespace BuzzGUI.WaveformControl
                 Selection.AdjustmentTarget = AdjustmentTargetValue.None;
             }
 
-            OnPropertyChanged("Offset");
+            OnPropertyChanged("OffsetString");
             OnPropertyChanged("CursorOffset");
         }
 
