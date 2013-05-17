@@ -223,7 +223,7 @@ namespace BuzzGUI.Common
             }       
         }
 
-        public static void SaveToFile(IWaveLayer wave)
+        public static void SaveToFile(IWaveLayer wave, string name = "temp")
         {
             int WriteBufferSize = 4096;
 
@@ -232,7 +232,7 @@ namespace BuzzGUI.Common
 
             // Configure save file dialog box
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "temp"; // Default file name
+            dlg.FileName = name; // Default file name
             dlg.DefaultExt = ".wav"; // Default file extension
 
             dlg.Filter = "Wave files|*.wav|Apple/SGI AIFF|*.aif|Sun/NeXT AU format|*.au|RAW PCM|*.raw|FLAC lossless|*.flac|Ogg Vorbis|*.ogg"; // Filter files by extension

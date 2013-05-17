@@ -136,7 +136,7 @@ namespace BuzzGUI.WavetableView
             SaveCommand =  new SimpleCommand
             {
                 CanExecuteDelegate = x => wave != null,
-                ExecuteDelegate = x => { if (wave != null) WaveCommandHelpers.SaveToFile(wave.Layers.LastOrDefault()); }
+                ExecuteDelegate = x => { if (wave != null) WaveCommandHelpers.SaveToFile(wave.Layers.LastOrDefault(), wave.Name); }
             };
 
             PlayCommand = new SimpleCommand
