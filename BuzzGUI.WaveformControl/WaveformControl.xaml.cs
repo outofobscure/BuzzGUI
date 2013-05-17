@@ -76,10 +76,25 @@ namespace BuzzGUI.WaveformControl
 
                 double ScreenOffset = (Cursor.Offset - waveformElement.ScrollOffset.X) % waveformElement.ActualWidth;
 
-                Canvas.SetLeft(TimelineCursor, Math.Floor(ScreenOffset));
+                if (ScreenOffset < 0)
+                {
+                    Canvas.SetLeft(TimelineCursor, 0.0);
+                }
+                else
+                {
+                    if (Cursor.Offset - waveformElement.ActualWidth > waveformElement.ScrollOffset.X)
+                    {
+                        Canvas.SetLeft(TimelineCursor, waveformElement.ActualWidth);
+                    }
+                    else
+                    {
+                        Canvas.SetLeft(TimelineCursor, Math.Floor(ScreenOffset));
+                    }
+                }
 
                 BuzzGUI.Common.Global.Buzz.DCWriteLine(ScreenOffset.ToString());
-                //BuzzGUI.Common.Global.Buzz.DCWriteLine(waveformElement.ActualWidth.ToString());
+                BuzzGUI.Common.Global.Buzz.DCWriteLine("cursor:" + Cursor.Offset.ToString());
+                BuzzGUI.Common.Global.Buzz.DCWriteLine("scroll:" + waveformElement.ScrollOffset.X.ToString());
             }
         }
         void UserControl1_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
