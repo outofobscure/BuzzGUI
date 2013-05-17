@@ -27,7 +27,12 @@
       <Setter Property="bgc:DragTargetBehavior.Command" Value="{Binding DropCommand}"/>
       <Setter Property="Height" Value="19"/>
     </Style>
-    
+
+    <Style x:Key="NumberCellStyle" TargetType="DataGridCell">
+        <Style.Setters>
+            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+        </Style.Setters>
+    </Style>
 
     <bgc:DebugConverter x:Key="debugConverter"/>
 
@@ -136,10 +141,10 @@
 
       <DataGrid.Columns>
         <DataGridComboBoxColumn Header="Root" Width="52" TextBinding="{Binding RootNote}" ItemsSource="{x:Static l:WaveLayerVM.NoteList}"/>
-        <DataGridTextColumn Header="Length" Binding="{Binding SampleCount}" IsReadOnly="True"/>
-        <DataGridTextColumn Header="Rate" Binding="{Binding Path=SampleRate, ValidatesOnExceptions=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}" EditingElementStyle="{StaticResource CellEditStyle}"/>
-        <DataGridTextColumn Header="Loop Start" Binding="{Binding LoopStart, ValidatesOnExceptions=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}"/>
-        <DataGridTextColumn Header="Loop End" Binding="{Binding LoopEnd, ValidatesOnExceptions=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}"/>
+        <DataGridTextColumn Header="Length" Binding="{Binding SampleCount}" IsReadOnly="True" CellStyle="{StaticResource NumberCellStyle}"/>
+        <DataGridTextColumn Header="Rate" Binding="{Binding Path=SampleRate, ValidatesOnExceptions=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}" EditingElementStyle="{StaticResource CellEditStyle}" CellStyle="{StaticResource NumberCellStyle}"/>
+        <DataGridTextColumn Header="Loop Start" Binding="{Binding LoopStart, ValidatesOnExceptions=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}" CellStyle="{StaticResource NumberCellStyle}"/>
+        <DataGridTextColumn Header="Loop End" Binding="{Binding LoopEnd, ValidatesOnExceptions=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}" CellStyle="{StaticResource NumberCellStyle}"/>
       </DataGrid.Columns>
     </DataGrid>
 
