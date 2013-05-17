@@ -92,7 +92,7 @@ namespace BuzzGUI.WaveformControl
                     }
                 }
 
-                BuzzGUI.Common.Global.Buzz.DCWriteLine(ScreenOffset.ToString());
+                BuzzGUI.Common.Global.Buzz.DCWriteLine("screen:" + ScreenOffset.ToString());
                 BuzzGUI.Common.Global.Buzz.DCWriteLine("cursor:" + Cursor.Offset.ToString());
                 BuzzGUI.Common.Global.Buzz.DCWriteLine("scroll:" + waveformElement.ScrollOffset.X.ToString());
             }
