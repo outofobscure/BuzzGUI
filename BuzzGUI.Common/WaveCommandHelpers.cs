@@ -236,6 +236,59 @@ namespace BuzzGUI.Common
             }
         }
 
+        public static void ConvertSlotIfNeeded(IWavetable wavetable, int sourceSlotIndex, ref WaveFormat wf, ref int ChannelCount)
+        {
+            bool AllLayersAreFloat = false;
+            bool AllLayersAreStereo = false;
+            bool ConvertSlotToFloat = false;
+            bool ConvertSlotToStereo = false;
+
+            AllLayersAreFloat = true; //assume they are, but check if they are not
+            AllLayersAreStereo = true; //assume they are, but check if they are not
+            if (wavetable.Waves[sourceSlotIndex] != null)
+            {
+                foreach (var l in wavetable.Waves[sourceSlotIndex].Layers)
+                {
+                    if (l.Format != WaveFormat.Float32)
+                    {
+                        AllLayersAreFloat = false;
+                    }
+                    if (l.Format != wf && l.Format != WaveFormat.Float32)
+                    {
+                        ConvertSlotToFloat = true; //we need to convert if the formats don't match up and its not already 32 bit float
+                    }
+
+                    if (l.ChannelCount == 1)
+                    {
+                        AllLayersAreStereo = false;
+                    }
+                    if (l.ChannelCount != ChannelCount && l.ChannelCount != 2)
+                    {
+                        ConvertSlotToStereo = true; //we need to convert if the channels don't match up and its not already stereo
+                    }
+                }
+
+                if (ConvertSlotToFloat == true || ConvertSlotToStereo == true)
+                {
+                    WaveCommandHelpers.ConvertSlot(wavetable, sourceSlotIndex, ConvertSlotToFloat, ConvertSlotToStereo); //convert whole slot to 32bit float and/or stereo                        
+                }
+            }
+
+            //we also need to make sure the new layer matches the format of all the old layers
+            if (ConvertSlotToFloat == true || AllLayersAreFloat == true)
+            {
+                //BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE NEW LAYER FLOAT");
+                wf = WaveFormat.Float32; //also treat the new layer as 32bit float
+            }
+
+            if (ConvertSlotToStereo == true || AllLayersAreStereo == true)
+            {
+                //BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE NEW LAYER STEREO");
+                ChannelCount = 2;
+            }
+        }
+
+
         public static void ClearLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex)
         {
             //TODO its possible to end up with an unnamed slot
@@ -265,12 +318,26 @@ namespace BuzzGUI.Common
 
         public static void CopyLayerToLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int targetSlotIndex, int targetLayerIndex)
         {
-            //TODO CONVERSIONS MIGHT BE NECCESSARY!!!!!!!!!
-
             IWave sourceSlot = wavetable.Waves[sourceSlotIndex];
             IWave targetSlot = wavetable.Waves[targetSlotIndex];
-
             TemporaryWave sourceLayer = new TemporaryWave(sourceSlot.Layers[sourceLayerIndex]);
+
+            //convert the whole slot if necessary
+            int ChannelCount = sourceLayer.ChannelCount;
+            WaveFormat wf = sourceLayer.Format;
+            WaveCommandHelpers.ConvertSlotIfNeeded(wavetable, targetSlotIndex, ref wf, ref ChannelCount);
+
+            //convert the new layer if neccessary
+            bool ToFloat = false;
+            bool ToStereo = false;
+            if (wf == WaveFormat.Float32 && sourceLayer.Format != WaveFormat.Float32)
+            {
+                ToFloat = true;
+            }
+            if ((ChannelCount == 2 && sourceLayer.ChannelCount == 1))
+            {
+                ToStereo = true;
+            }
 
             //we need to backup the whole slot with all layers contained so we can operate on the target layer
             List<TemporaryWave> backupLayers = BackupLayersInSlot(targetSlot.Layers);
@@ -281,7 +348,7 @@ namespace BuzzGUI.Common
                 if (targetLayer.Index == targetLayerIndex) //only replace the selected layer
                 {
                     //replace the targetLayer with the sourceLayer in the targetSlot
-                    RestoreLayerFromBackup(wavetable, targetSlot, sourceLayer, add);
+                    RestoreLayerFromBackup(wavetable, targetSlot, sourceLayer, add, ToFloat, ToStereo);
                 }
                 else
                 {

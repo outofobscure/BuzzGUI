@@ -86,66 +86,13 @@ namespace BuzzGUI.Common.InterfaceExtensions
 			var rootnote = BuzzNote.FromMIDINote(Math.Max(0, inst.basenote - 12));	// -12 for backwards compatibility
 
             //when adding a new layer to a slot we need to make sure they are all in the same format, convert the old layers in the slot to float / stereo if needed.
-            bool AllLayersAreFloat = false;
-            bool AllLayersAreStereo = false;
-            bool ConvertSlotToFloat = false;
-            bool ConvertSlotToStereo = false;
+            int ChannelCount = sf.ChannelCount;
             if (add == true)
             {
-                AllLayersAreFloat = true; //assume they are, but check if they are not
-                AllLayersAreStereo = true; //assume they are, but check if they are not
-                if (wavetable.Waves[index] != null)
-                {
-                    foreach (var l in wavetable.Waves[index].Layers)
-                    {
-                        if ( l.Format != WaveFormat.Float32)
-                        {
-                            AllLayersAreFloat = false;
-                        }
-                        if (l.Format != wf && l.Format != WaveFormat.Float32)
-                        {
-                            ConvertSlotToFloat = true; //we need to convert if the formats don't match up and its not already 32 bit float
-                        }
-
-                        if (l.ChannelCount == 1)
-                        {
-                            AllLayersAreStereo = false;
-                        }
-                        if (l.ChannelCount != sf.ChannelCount && l.ChannelCount != 2)
-                        {
-                            ConvertSlotToStereo = true; //we need to convert if the channels don't match up and its not already stereo
-                        }
-                    }
-
-                    bool Convert = false;
-                    if (ConvertSlotToFloat == true || ConvertSlotToStereo == true)
-                    {
-                        Convert = true;
-                    }
-
-                    if (Convert == true)
-                    {
-                        WaveCommandHelpers.ConvertSlot(wavetable, index, ConvertSlotToFloat, ConvertSlotToStereo); //convert whole slot to 32bit float and/or stereo                        
-                    }
-                
-                }
+                WaveCommandHelpers.ConvertSlotIfNeeded(wavetable, index, ref wf, ref ChannelCount);
             }
 
-            //we also need to make sure the new layer matches the format of all the old layers
-            if (ConvertSlotToFloat == true || AllLayersAreFloat == true)
-            {
-                //BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE NEW LAYER FLOAT");
-                wf = WaveFormat.Float32; //also treat the new layer as 32bit float
-            }
-
-            int ChannelCount = sf.ChannelCount;
-            if (ConvertSlotToStereo == true || AllLayersAreStereo == true)
-            {
-                //BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE NEW LAYER STEREO");
-                ChannelCount = 2;                    
-            }
-
-			wavetable.AllocateWave(index, path, name, (int)sf.FrameCount, wf, ChannelCount == 2, rootnote, add, false);
+            wavetable.AllocateWave(index, path, name, (int)sf.FrameCount, wf, ChannelCount == 2, rootnote, add, false);
 
 			var wave = wavetable.Waves[index];
 			var layer = wave.Layers.Where(l => l.RootNote == rootnote).Last();		// multiple layers may have the same root, so use Last() to get the new one
@@ -177,7 +124,8 @@ namespace BuzzGUI.Common.InterfaceExtensions
                     layer.SetDataAsFloat(buffer, ch, sf.ChannelCount, ch, (int)framesread, (int)n);
 
                     //write the same data to the right channel too in case the new layer is mono but we converted the slot to stereo already
-                    if ((ConvertSlotToStereo == true && sf.ChannelCount == 1) || (AllLayersAreStereo == true && sf.ChannelCount == 1))
+                    //if ((ConvertSlotToStereo == true && sf.ChannelCount == 1) || (AllLayersAreStereo == true && sf.ChannelCount == 1))
+                    if ((ChannelCount == 2 && sf.ChannelCount == 1))
                     {
                         //BuzzGUI.Common.Global.Buzz.DCWriteLine("COPY LEFT TO RIGHT ON NEW LAYER");
                         layer.SetDataAsFloat(buffer, 0, 1, 1, (int)framesread, (int)n);
