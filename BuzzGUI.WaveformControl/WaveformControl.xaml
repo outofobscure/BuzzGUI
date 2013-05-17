@@ -8,32 +8,40 @@
              UseLayoutRounding="True" TextOptions.TextFormattingMode="Display"
              >
     <UserControl.Resources>
+
+        <SolidColorBrush x:Key="WaveformOutlineBrush" Color="#254b25" Opacity="1.0"></SolidColorBrush>
+
         <LinearGradientBrush x:Key="FillBrush" StartPoint="0,0" EndPoint="0,100" Opacity="1.0" MappingMode="Absolute">
-            <GradientStop Color="#DFD" Offset="0"/>
-            <GradientStop Color="#5A5" Offset="0.5"/>
-            <GradientStop Color="#DFD" Offset="1"/>
+            <GradientStop Color="#326732" Offset="0"/>
+            <GradientStop Color="#41ab41" Offset="0.5"/>
+            <GradientStop Color="#326732" Offset="1"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="BackgroundBrush" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="AliceBlue" Offset="0.0" />
-            <GradientStop Color="AliceBlue" Offset="1.0" />
+        <LinearGradientBrush x:Key="BackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F7F7F7" Offset="0.0" />
+            <GradientStop Color="#DDDDDD" Offset="0.5" />
+            <GradientStop Color="#F7F7F7" Offset="1.0" />
         </LinearGradientBrush>
 
         <Style x:Key="WaveformControlBorderStyle" TargetType="{x:Type Border}">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="#888"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
+        <Style x:Key="WaveformElementStyle" TargetType="{x:Type ScrollViewer}">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+        </Style>
+
         <SolidColorBrush x:Key="MidlineBrush" Color="Black" Opacity="0.4"></SolidColorBrush>
-        <SolidColorBrush x:Key="CursorBrush" Color="Navy" Opacity="0.8"></SolidColorBrush>
-        <SolidColorBrush x:Key="AdjustmentTargetBrush" Color="Red" Opacity="0.8"></SolidColorBrush>
-        <SolidColorBrush x:Key="SelectionBrush" Color="Black" Opacity="0.2"></SolidColorBrush>
+        <SolidColorBrush x:Key="CursorBrush" Color="Black" Opacity="1.0"></SolidColorBrush>
+        <SolidColorBrush x:Key="AdjustmentTargetBrush" Color="Red" Opacity="1.0"></SolidColorBrush>
+        <SolidColorBrush x:Key="SelectionBrush" Color="Red" Opacity="0.2"></SolidColorBrush>
     </UserControl.Resources>
 
     <Border Style="{StaticResource WaveformControlBorderStyle}" ClipToBounds="True">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="20"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
@@ -46,7 +54,9 @@
                 <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Row="0" Grid.ColumnSpan="6"  HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" CanContentScroll="True" Name="sv">
+            <Canvas Grid.Row="0" Grid.ColumnSpan="4" Background="#999999"></Canvas>
+
+            <ScrollViewer Style="{StaticResource WaveformElementStyle}" Grid.Row="1" Grid.ColumnSpan="4"  HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" CanContentScroll="True" Name="sv">
                 <l:WaveformElement x:Name="waveformElement" Waveform="{Binding Waveform}" SnapsToDevicePixels="True" 
                     common:CommandBehavior.Event="SelectionChanged"
                     common:CommandBehavior.Command="{Binding SelectionChangedCommand}"
@@ -72,10 +82,10 @@
                 </ScrollViewer.ContextMenu>
             </ScrollViewer>
 
-            <Label Grid.Row="1" Grid.Column="0" Content="{Binding ElementName=waveformElement, Path=OffsetString}" HorizontalAlignment="Left"/>
-            <Label Grid.Row="1" Grid.Column="1" Content="{Binding ElementName=waveformElement, Path=SelectionString}" HorizontalAlignment="Left"/>
-            <Label Grid.Row="1" Grid.Column="2" Content="" HorizontalAlignment="Left"/>
-            <Label Grid.Row="1" Grid.Column="3" Content="{Binding ElementName=waveformElement, Path=WaveFormatString}" HorizontalAlignment="Right"/>
+            <Label Grid.Row="2" Grid.Column="0" Content="{Binding ElementName=waveformElement, Path=OffsetString}" HorizontalAlignment="Left"/>
+            <Label Grid.Row="2" Grid.Column="1" Content="{Binding ElementName=waveformElement, Path=SelectionString}" HorizontalAlignment="Left"/>
+            <Label Grid.Row="2" Grid.Column="2" Content="" HorizontalAlignment="Left"/>
+            <Label Grid.Row="2" Grid.Column="3" Content="{Binding ElementName=waveformElement, Path=WaveFormatString}" HorizontalAlignment="Right"/>
         </Grid>
     </Border>
 

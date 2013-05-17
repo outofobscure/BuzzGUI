@@ -33,9 +33,8 @@ namespace BuzzGUI.WaveformControl
 				fill.Freeze();
 
 
-				pen = new Pen(Brushes.Black, 0.5);
+                pen = new Pen(e.FindResource("WaveformOutlineBrush") as Brush, 0.5);
 				pen.Freeze();
-
 			}
 
 
