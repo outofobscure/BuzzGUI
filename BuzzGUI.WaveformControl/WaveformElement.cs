@@ -294,7 +294,7 @@ namespace BuzzGUI.WaveformControl
 			return SegmentVisualChildren.FirstOrDefault(x => x.Allocated && x.SampleIndex == index);
 		}
 
-        protected void UpdateVisuals()
+        public void UpdateVisuals() //TODO no reason to be public once we cleaned up the cursor mess
         {
             if (minMaxCache == null)
             {
@@ -338,6 +338,8 @@ namespace BuzzGUI.WaveformControl
             UpdateCursorPosition();
             UpdateSelection();
             UpdateAdjustmentTargetVisual();
+            OnPropertyChanged("OffsetString"); //TODO NOT HERE
+            OnPropertyChanged("SelectionString"); //TODO NOT HERE
         }
 
 		VisualCollection children;

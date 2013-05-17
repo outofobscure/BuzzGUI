@@ -54,7 +54,7 @@
                 <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
 
-            <Canvas Grid.Row="0" Grid.ColumnSpan="4" Background="#999999">
+            <Canvas Name="Timeline" Grid.Row="0" Grid.ColumnSpan="4" Background="#999999" MouseLeftButtonDown="Canvas_MouseLeftButtonDown">
                 <Canvas Name="TimelineCursor" Width="1" Height="20" Background="Black"></Canvas>
             </Canvas>
 

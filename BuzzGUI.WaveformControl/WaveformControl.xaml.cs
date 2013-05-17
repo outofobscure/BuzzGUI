@@ -101,5 +101,25 @@ namespace BuzzGUI.WaveformControl
         {
             // You can also validate the data going into the DataContext using the event args
         }
+
+        private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Point p = Mouse.GetPosition(Timeline);
+            BuzzGUI.Common.Global.Buzz.DCWriteLine("CLICK:" + p.X.ToString());
+
+            //TODO this sucks why doesn't this happen automatically, refactor the cursor mess!
+            //waveformElement.PlayCursor.Offset = waveformElement.ScrollOffset.X + p.X;
+            waveformElement.PlayCursor.Offset = p.X;
+            waveformElement.PlayCursor.OffsetSamples = waveformElement.PositionToSample(waveformElement.PlayCursor.Offset);
+
+            //TODO this sucks too
+            if (waveformElement.Selection.IsActive() == false)
+            {
+                waveformElement.Selection.Reset(waveformElement.PlayCursor.OffsetSamples);                
+            }
+
+            waveformElement.UpdateVisuals(); //FUCK NO, not here... refactor
+
+        }
 	}
 }
