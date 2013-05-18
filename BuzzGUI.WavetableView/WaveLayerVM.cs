@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ using System.Windows.Input;
 using BuzzGUI.Common;
 using BuzzGUI.Common.InterfaceExtensions;
 using BuzzGUI.Interfaces;
+using BuzzGUI.FileBrowser;
+
 
 namespace BuzzGUI.WavetableView
 {
@@ -37,11 +40,16 @@ namespace BuzzGUI.WavetableView
             {
                 ExecuteDelegate = wavelist =>
                 {
+                    foreach (FSItemVM w in (IEnumerable)wavelist)
+                    {
+                        //TODO this should really replace the selected layer and then add (or rather insert) subsequent layers and push layer beyond the inserted ones down ?
+                        WaveSlot.Wavetable.Wavetable.LoadWaveEx(WaveSlot.Wave.Index, w.FullPath, w.Name, true);
+                    }
+
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("LoadLayerCommand PRESSED");
                 }
             };
 
-            //SaveLayerCommand = new Commands.SaveFileCommand(this); //TODO add layer param to savefilecommand
             SaveLayerCommand = new SimpleCommand
             {
                 CanExecuteDelegate = x => WaveSlot.Wave != null && layer != null,
