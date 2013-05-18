@@ -55,7 +55,15 @@ namespace BuzzGUI.WavetableView
                 CanExecuteDelegate = x => WaveSlot.Wave != null && layer != null,
                 ExecuteDelegate = x =>
                 {
-                    WaveCommandHelpers.SaveToFile(layer);
+                    if (String.IsNullOrEmpty(layer.Path) == false)
+                    {
+                        //if the bmx wasn't saved / loaded yet, the layer still has the path set so we can take the filename from there
+                        WaveCommandHelpers.SaveToFile(layer, System.IO.Path.GetFileName(layer.Path));
+                    }
+                    else
+                    {
+                        WaveCommandHelpers.SaveToFile(layer);
+                    }
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("SaveLayerCommand PRESSED");
                 }
             };
