@@ -128,6 +128,7 @@ namespace BuzzGUI.WavetableView
                     // if contains audio
                     else if (Clipboard.ContainsAudio())
                     {
+                        //TODO SLOT CONVERSION MIGHT BE NECESSARY!
                     }
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand PRESSED");
                 }
