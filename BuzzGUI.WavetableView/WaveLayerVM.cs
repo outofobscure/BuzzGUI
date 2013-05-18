@@ -82,8 +82,11 @@ namespace BuzzGUI.WavetableView
                     layer.SaveAsWAV(ms);
                     Clipboard.SetAudio(ms);
 
-                    // internal copy
-                    Clipboard.SetData("BuzzWaveLayerClip", new WaveLayerClip(WaveSlot.Wave.Index, WaveCommandHelpers.GetLayerIndex(layer)));
+                    //to add multiple items to the clipboard you must use a dataobject!
+                    IDataObject clips = new DataObject();
+                    clips.SetData(DataFormats.WaveAudio, ms); //external copy TODO: 32bit float doesn't work, need to convert to 24bit int (or 32bit int?)
+                    clips.SetData("BuzzWaveLayerClip", new WaveLayerClip(WaveSlot.Wave.Index, WaveCommandHelpers.GetLayerIndex(layer))); //internal copy
+                    Clipboard.SetDataObject(clips, true);
 
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("CopyLayerCommand PRESSED");               
                 }

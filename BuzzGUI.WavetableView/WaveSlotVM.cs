@@ -171,8 +171,11 @@ namespace BuzzGUI.WavetableView
                     il.SaveAsWAV(ms);
                     Clipboard.SetAudio(ms);
 
-                    // internal copy
-                    Clipboard.SetData("BuzzWaveClip", new WaveClip(index));
+                    //to add multiple items to the clipboard you must use a dataobject!
+                    IDataObject clips = new DataObject();
+                    clips.SetData(DataFormats.WaveAudio, ms); //external copy TODO: 32bit float doesn't work, need to convert to 24bit int (or 32bit int?)
+                    clips.SetData("BuzzWaveClip", new WaveClip(index)); //internal copy
+                    Clipboard.SetDataObject(clips, true);
                 }
             };
 
