@@ -8,6 +8,7 @@ using libsndfile;
 
 namespace BuzzGUI.Common
 {
+    [Serializable]
     public class TemporaryWave : IWaveLayer
     {
         WaveFormat format;

@@ -88,28 +88,6 @@ namespace BuzzGUI.WavetableView
             }
         }
 
-        [Serializable]
-        private class WaveClip
-        {
-            private int index = -1;
-            public int Index
-            {
-                get
-                {
-                    return index;
-                }
-                set
-                {
-                    index = value;
-                }
-            }
-            public WaveClip(int ini)
-            {
-                index = ini;
-            }
-
-        }
-
         public ICommand LoadCommand { get; private set; }
         public ICommand SaveCommand { get; private set; }
         public ICommand PlayCommand { get; private set; }
@@ -169,28 +147,26 @@ namespace BuzzGUI.WavetableView
                     var ms = new MemoryStream();
                     var il = wave.Layers[0]; //TODO rethink this, can we copy the selected layer ?
                     il.SaveAsWAV(ms);
-                    Clipboard.SetAudio(ms);
 
                     //to add multiple items to the clipboard you must use a dataobject!
                     IDataObject clips = new DataObject();
                     clips.SetData(DataFormats.WaveAudio, ms); //external copy TODO: 32bit float doesn't work, need to convert to 24bit int (or 32bit int?)
-                    clips.SetData("BuzzWaveClip", new WaveClip(index)); //internal copy
+                    clips.SetData("BuzzWaveSlot", new WaveCommandHelpers.BuzzWaveSlot(wave.Index, WaveCommandHelpers.BackupLayersInSlot(wave.Layers))); //internal copy
                     Clipboard.SetDataObject(clips, true);
                 }
             };
 
             PasteCommand = new SimpleCommand
             {
-                CanExecuteDelegate = x => (Clipboard.ContainsAudio() || Clipboard.ContainsData("BuzzWaveClip")),
+                CanExecuteDelegate = x => (Clipboard.ContainsAudio() || Clipboard.ContainsData("BuzzWaveSlot")),
                 ExecuteDelegate = x =>
                 {
                     // if we have a waveslot in our clipboard
-                    if (Clipboard.ContainsData("BuzzWaveClip"))
+                    if (Clipboard.ContainsData("BuzzWaveSlot"))
                     {
-                        WaveClip wc = Clipboard.GetData("BuzzWaveClip") as WaveClip;
-                        int sourceLayerIndex = WaveCommandHelpers.GetLayerIndex(wt.Waves[wc.Index].SelectedLayer.Layer); //must save this
-                        WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, wc.Index, index);
-
+                        WaveCommandHelpers.BuzzWaveSlot ws = Clipboard.GetData("BuzzWaveSlot") as WaveCommandHelpers.BuzzWaveSlot;
+                        int sourceLayerIndex = WaveCommandHelpers.GetLayerIndex(wt.Waves[ws.SourceSlotIndex].SelectedLayer.Layer); //must save this
+                        WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, ws.Layers, index);
                         Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
                         SelectedLayer = wt.Waves[index].layers[sourceLayerIndex]; //switch to the same layer that was selected in the original
                     }

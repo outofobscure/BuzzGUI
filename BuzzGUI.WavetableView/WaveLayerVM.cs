@@ -96,12 +96,11 @@ namespace BuzzGUI.WavetableView
                     // audio to the clipboard
                     var ms = new MemoryStream();
                     layer.SaveAsWAV(ms);
-                    Clipboard.SetAudio(ms);
 
                     //to add multiple items to the clipboard you must use a dataobject!
                     IDataObject clips = new DataObject();
                     clips.SetData(DataFormats.WaveAudio, ms); //external copy TODO: 32bit float doesn't work, need to convert to 24bit int (or 32bit int?)
-                    clips.SetData("BuzzWaveLayerClip", new WaveLayerClip(WaveSlot.Wave.Index, WaveCommandHelpers.GetLayerIndex(layer))); //internal copy
+                    clips.SetData("BuzzTemporaryWave", new TemporaryWave(WaveSlot.Wavetable.Wavetable.Waves[WaveSlot.Wave.Index].Layers[WaveCommandHelpers.GetLayerIndex(layer)])); //internal copy
                     Clipboard.SetDataObject(clips, true);
 
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("CopyLayerCommand PRESSED");               
@@ -110,35 +109,32 @@ namespace BuzzGUI.WavetableView
 
             PasteLayerCommand = new SimpleCommand
             {
-                CanExecuteDelegate = x => (Clipboard.ContainsAudio() || Clipboard.ContainsData("BuzzWaveLayerClip")),
+                CanExecuteDelegate = x => (Clipboard.ContainsAudio() || Clipboard.ContainsData("BuzzTemporaryWave")),
                 ExecuteDelegate = x =>
                 {
-                    // if we have a wavelayer in our clipboard
-                    if (Clipboard.ContainsData("BuzzWaveLayerClip"))
-                    {
-                        WaveLayerClip wc = Clipboard.GetData("BuzzWaveLayerClip") as WaveLayerClip;
-                        int targetSlotIndex = WaveSlot.Wave.Index; //need to save this
-                        int targetLayerIndex = WaveCommandHelpers.GetLayerIndex(layer); //need to save this
-                        WaveCommandHelpers.CopyLayerToLayer(WaveSlot.Wavetable.Wavetable, wc.SourceSlotIndex, wc.SourceLayerIndex, targetSlotIndex, targetLayerIndex);
+                    TemporaryWave tw = null;
 
-                        WaveSlot.Wavetable.SelectedItem = WaveSlot.Wavetable.Waves[targetSlotIndex]; //need to set this again otherwise there's an exception when editing in the wave editor
-                        WaveSlot.SelectedLayer = WaveSlot.Wavetable.Waves[targetSlotIndex].Layers[targetLayerIndex]; //get by indices because WaveSlotVM might have changed
+                    // if we have a wavelayer in our clipboard
+                    if (Clipboard.ContainsData("BuzzTemporaryWave"))
+                    {
+                        tw = Clipboard.GetData("BuzzTemporaryWave") as TemporaryWave;
                         BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand INTERNAL");
                     }
                     // if contains audio
                     else if (Clipboard.ContainsAudio())
                     {
                         var ms = Clipboard.GetAudioStream();
-                        var tw = new TemporaryWave(ms);
+                        tw = new TemporaryWave(ms);
+                        BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand CLIPBOARD");
+                    }
 
+                    if (tw != null)
+                    {                        
                         int targetSlotIndex = WaveSlot.Wave.Index; //need to save this
                         int targetLayerIndex = WaveCommandHelpers.GetLayerIndex(layer); //need to save this
-                        //WaveCommandHelpers.AddSelectionToLayer(WaveSlot.Wavetable.Wavetable, targetSlotIndex, targetLayerIndex, 0, tw);
                         WaveCommandHelpers.ReplaceLayer(WaveSlot.Wavetable.Wavetable, targetSlotIndex, targetLayerIndex, tw);
-
                         WaveSlot.Wavetable.SelectedItem = WaveSlot.Wavetable.Waves[targetSlotIndex]; //need to set this again otherwise there's an exception when editing in the wave editor
                         WaveSlot.SelectedLayer = WaveSlot.Wavetable.Waves[targetSlotIndex].Layers[targetLayerIndex]; //get by indices because WaveSlotVM might have changed
-                        BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand CLIPBOARD");
                     }
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand PRESSED");
                 }
@@ -222,44 +218,5 @@ namespace BuzzGUI.WavetableView
 		public string RootNote { get { return BuzzNote.ToString(layer.RootNote); } set { layer.RootNote = BuzzNote.Parse(value); PropertyChanged.Raise(this, "RootNote"); } }
 
 		public event PropertyChangedEventHandler PropertyChanged;
-
-
-        [Serializable]
-        private class WaveLayerClip
-        {
-            private int sourceSlotIndex = -1;
-            private int sourceLayerIndex = -1;
-
-            public int SourceSlotIndex
-            {
-                get
-                {
-                    return sourceSlotIndex;
-                }
-                private set
-                {
-                    sourceSlotIndex = value;
-                }
-            }
-
-            public int SourceLayerIndex
-            {
-                get
-                {
-                    return sourceLayerIndex;
-                }
-                private set
-                {
-                    sourceLayerIndex = value;
-                }
-            }
-
-            public WaveLayerClip(int iSourceSlotIndex, int iSourceLayerIndex)
-            {
-                sourceSlotIndex = iSourceSlotIndex;
-                sourceLayerIndex = iSourceLayerIndex;
-            }
-
-        }
 	}
 }
