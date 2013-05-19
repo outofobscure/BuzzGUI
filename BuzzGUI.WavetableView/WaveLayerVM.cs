@@ -114,13 +114,13 @@ namespace BuzzGUI.WavetableView
                 {
                     TemporaryWave tw = null;
 
-                    // if we have a wavelayer in our clipboard
+                    // if we have a TemporaryWave in our clipboard
                     if (Clipboard.ContainsData("BuzzTemporaryWave"))
                     {
                         tw = Clipboard.GetData("BuzzTemporaryWave") as TemporaryWave;
                         BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand INTERNAL");
                     }
-                    // if contains audio
+                    // if contains audio from windows clipboard
                     else if (Clipboard.ContainsAudio())
                     {
                         var ms = Clipboard.GetAudioStream();

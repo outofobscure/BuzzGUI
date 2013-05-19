@@ -161,7 +161,7 @@ namespace BuzzGUI.WavetableView
                 CanExecuteDelegate = x => (Clipboard.ContainsAudio() || Clipboard.ContainsData("BuzzWaveSlot")),
                 ExecuteDelegate = x =>
                 {
-                    // if we have a waveslot in our clipboard
+                    // if we have a WaveSlot in our clipboard
                     if (Clipboard.ContainsData("BuzzWaveSlot"))
                     {
                         WaveCommandHelpers.BuzzWaveSlot ws = Clipboard.GetData("BuzzWaveSlot") as WaveCommandHelpers.BuzzWaveSlot;
@@ -170,7 +170,16 @@ namespace BuzzGUI.WavetableView
                         Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
                         SelectedLayer = wt.Waves[index].layers[sourceLayerIndex]; //switch to the same layer that was selected in the original
                     }
-                    // if contains audio
+                    // if we have a TemporaryWave in our clipboard, replace the whole slot with this one wave
+                    else if (Clipboard.ContainsData("BuzzTemporaryWave"))
+                    {
+                        List<TemporaryWave> Layers = new List<TemporaryWave>();
+                        Layers.Add(Clipboard.GetData("BuzzTemporaryWave") as TemporaryWave);
+                        WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, Layers, index);
+                        Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
+                        SelectedLayer = wt.Waves[index].layers.FirstOrDefault(); //there's only one layer so switch to it
+                    }
+                    // if contains audio from windows clipboard
                     else if (Clipboard.ContainsAudio())
                     {
                         // get audio stream 
