@@ -127,7 +127,6 @@ namespace BuzzGUI.Common
                 loopEnd = sampleCount; //TODO re-think
                 path = ""; //TODO re-think
                 name = "Copy"; //TODO re-think
-            
             }
         }
 

@@ -28,31 +28,20 @@ namespace BuzzGUI.Common
 
         private static void RestoreLayerFromBackup(IWavetable wavetable, IWave sourceSlot, TemporaryWave sourceLayer, int targetSlotIndex, bool add, bool ToFloat, bool ToStereo)
         {
-            //TODO REFACTOR ADD PARAM
-            //can we set ADD to false if targetSlot.Index == 0 otherwise true ?
-
             WaveFormat wf = sourceLayer.Format;
             if (ToFloat == true)
             {
-                //BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE OLD SLOT FLOAT");
                 wf = WaveFormat.Float32;
             }
 
             int ChannelCount = sourceLayer.ChannelCount;
             if (ToStereo == true)
             {
-                //BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE OLD SLOT STEREO");
                 ChannelCount = 2; //target layer will have 2 channels and left will be copied to right automatically in CopyAudioData()
             }
 
             wavetable.AllocateWave(targetSlotIndex, sourceLayer.Path, sourceLayer.Name, sourceLayer.SampleCount, wf, ChannelCount == 2, sourceLayer.RootNote, add, false);
             var targetLayer = wavetable.Waves[targetSlotIndex].Layers.Last();
-            //BuzzGUI.Common.Global.Buzz.DCWriteLine("sourceLayer Channels: " + sourceLayer.ChannelCount.ToString());
-            //BuzzGUI.Common.Global.Buzz.DCWriteLine("targetLayer Channels: " + targetLayer.ChannelCount.ToString());
-            //BuzzGUI.Common.Global.Buzz.DCWriteLine("sourceLayer SampleCount: " + sourceLayer.SampleCount.ToString());
-            //BuzzGUI.Common.Global.Buzz.DCWriteLine("targetLayer SampleCount: " + targetLayer.SampleCount.ToString());
-            //BuzzGUI.Common.Global.Buzz.DCWriteLine("sourceLayer Format: " + sourceLayer.Format.ToString());
-            //BuzzGUI.Common.Global.Buzz.DCWriteLine("targetLayer Format: " + targetLayer.Format.ToString());
 
             CopyMetaData(sourceLayer, targetLayer);
             CopyAudioData(sourceLayer, targetLayer);
@@ -62,24 +51,18 @@ namespace BuzzGUI.Common
         private static void RestoreLayerFromBackup(IWavetable wavetable, IWave sourceSlot, TemporaryWave sourceLayer, int targetSlotIndex, bool add)
         {
             //convenience method to call if sourceSlot != targetSlot
-            //TODO REFACTOR ADD PARAM
-            //can we set ADD to false if targetSlot.Index == 0 otherwise true ?
             RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, targetSlotIndex, add, false, false);
         }
 
         private static void RestoreLayerFromBackup(IWavetable wavetable, IWave sourceSlot, TemporaryWave sourceLayer, bool add, bool ToFloat, bool ToStereo)
         {
             //convenience method to call if sourceSlot == targetSlot
-            //TODO REFACTOR ADD PARAM
-            //can we set ADD to false if targetSlot.Index == 0 otherwise true ?
             RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, sourceSlot.Index, add, ToFloat, ToStereo);
         }
 
         private static void RestoreLayerFromBackup(IWavetable wavetable, IWave sourceSlot, TemporaryWave sourceLayer, bool add)
         {
             //convenience method to call if sourceSlot == targetSlot and no conversions are needed
-            //TODO REFACTOR ADD PARAM
-            //can we set ADD to false if targetSlot.Index == 0 otherwise true ?
             RestoreLayerFromBackup(wavetable, sourceSlot, sourceLayer, sourceSlot.Index, add, false, false);
         }
 
@@ -132,7 +115,6 @@ namespace BuzzGUI.Common
             }
             else if (sourceLayer.ChannelCount == 1 && targetLayer.ChannelCount == 2) //convert mono to stereo
             {
-                //BuzzGUI.Common.Global.Buzz.DCWriteLine("CONVERT TO STEREO");                
                 CopyAudioDataStereo(sourceLayer.Left, sourceLayer.Left, targetLayer, 0, targetLayer.SampleCount);
             }
         }
@@ -141,17 +123,10 @@ namespace BuzzGUI.Common
         {
             if (sourceLayer.ChannelCount == 1)
             {
-                //float[] left = new float[sourceLayer.SampleCount];
-                //sourceLayer.GetDataAsFloat(left, 0, 1, 0, 0, sourceLayer.SampleCount); //TODO use tempwaveclass and left right ?
                 CopyAudioDataMono(sourceLayer.Left, targetLayer, StartSample, EndSample);
             }
             else if (sourceLayer.ChannelCount == 2)
             {
-                //float[] left = new float[sourceLayer.SampleCount];
-                //float[] right = new float[sourceLayer.SampleCount];
-
-                //sourceLayer.GetDataAsFloat(left, 0, 1, 0, 0, sourceLayer.SampleCount); //TODO use tempwaveclass and left right ?
-                //sourceLayer.GetDataAsFloat(right, 0, 1, 1, 0, sourceLayer.SampleCount); //TODO use tempwaveclass and left right ?
                 CopyAudioDataStereo(sourceLayer.Left, sourceLayer.Right, targetLayer, StartSample, EndSample);            
             }
         }
@@ -164,13 +139,13 @@ namespace BuzzGUI.Common
             return -1;
         }
 
-        public static void ClearWaveSlot(IWavetable wavetable, int sourceSlotIndex)
+        public static void ClearSlot(IWavetable wavetable, int sourceSlotIndex)
         {
             //Deletes all layers in the slot
             wavetable.LoadWave(sourceSlotIndex, null, null, false);
         }
 
-        public static void CopyWaveSlotToWaveSlot(IWavetable wavetable, List<TemporaryWave> backupLayers, int targetSlotIndex)
+        public static void ReplaceSlot(IWavetable wavetable, List<TemporaryWave> backupLayers, int targetSlotIndex)
         {
             IWave sourceSlot = wavetable.Waves[targetSlotIndex];
 
@@ -183,7 +158,7 @@ namespace BuzzGUI.Common
             }
         }
 
-        public static void CopySelectionToNewWaveSlot(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int targetSlotIndex, int targetLayerIndex, int StartSample, int EndSample, string name = "copy")
+        public static void CopySelectionToNewSlot(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int targetSlotIndex, int targetLayerIndex, int StartSample, int EndSample, string name = "copy")
         {
             IWave sourceSlot = wavetable.Waves[sourceSlotIndex];
             TemporaryWave sourceLayer = new TemporaryWave(sourceSlot.Layers[sourceLayerIndex]);
@@ -415,7 +390,7 @@ namespace BuzzGUI.Common
             List<TemporaryWave> backupLayers = BackupLayersInSlot(sourceSlot.Layers);
 
             //clear the whole slot, we're going to rebuild it without the layer that should get cleared
-            WaveCommandHelpers.ClearWaveSlot(wavetable, sourceSlotIndex);
+            WaveCommandHelpers.ClearSlot(wavetable, sourceSlotIndex);
 
             bool add = false; //first layer allocates the whole slot
             foreach (TemporaryWave sourceLayer in backupLayers)
@@ -431,52 +406,6 @@ namespace BuzzGUI.Common
                 add = true;
             }
         }
-
-        /*
-        public static void CopyLayerToLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int targetSlotIndex, int targetLayerIndex)
-        {
-            IWave sourceSlot = wavetable.Waves[sourceSlotIndex];
-            IWave targetSlot = wavetable.Waves[targetSlotIndex];
-            TemporaryWave sourceLayer = new TemporaryWave(sourceSlot.Layers[sourceLayerIndex]);
-
-            //convert the whole slot if necessary
-            int ChannelCount = sourceLayer.ChannelCount;
-            WaveFormat wf = sourceLayer.Format;
-            WaveCommandHelpers.ConvertSlotIfNeeded(wavetable, targetSlotIndex, ref wf, ref ChannelCount);
-
-            //convert the new layer if neccessary
-            bool ToFloat = false;
-            bool ToStereo = false;
-            if (wf == WaveFormat.Float32 && sourceLayer.Format != WaveFormat.Float32)
-            {
-                ToFloat = true;
-            }
-            if ((ChannelCount == 2 && sourceLayer.ChannelCount == 1))
-            {
-                ToStereo = true;
-            }
-
-            //we need to backup the whole slot with all layers contained so we can operate on the target layer
-            List<TemporaryWave> backupLayers = BackupLayersInSlot(targetSlot.Layers);
-
-            bool add = false; //first layer allocates the whole slot
-            foreach (TemporaryWave targetLayer in backupLayers)
-            {
-                if (targetLayer.Index == targetLayerIndex) //only replace the selected layer
-                {
-                    //replace the targetLayer with the sourceLayer in the targetSlot
-                    RestoreLayerFromBackup(wavetable, targetSlot, sourceLayer, add, ToFloat, ToStereo);
-                }
-                else
-                {
-                    //the other layers in the targetSlot get restored unaltered
-                    RestoreLayerFromBackup(wavetable, targetSlot, targetLayer, add);
-                }
-                add = true;
-            }
-       
-        }
-        */
 
         public static void DeleteSelectionFromLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex, int StartSample, int EndSample)
         {

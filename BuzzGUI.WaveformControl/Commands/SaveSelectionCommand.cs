@@ -21,7 +21,7 @@ namespace BuzzGUI.WaveformControl.Commands
                 if (Selection.IsValid(Waveform))
                 {
                     int targetSlotIndex = GetNextAvailableWaveSlotIndex(WaveformVm.SelectedSlotIndex);
-                    WaveCommandHelpers.CopySelectionToNewWaveSlot(Wavetable, WaveformVm.SelectedSlotIndex, WaveformVm.SelectedLayerIndex, targetSlotIndex, 0, Selection.StartSample, Selection.EndSample, null);
+                    WaveCommandHelpers.CopySelectionToNewSlot(Wavetable, WaveformVm.SelectedSlotIndex, WaveformVm.SelectedLayerIndex, targetSlotIndex, 0, Selection.StartSample, Selection.EndSample, null);
                 }
             }
             Selection.Reset(0);

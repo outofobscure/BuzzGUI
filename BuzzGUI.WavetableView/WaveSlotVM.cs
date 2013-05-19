@@ -166,7 +166,7 @@ namespace BuzzGUI.WavetableView
                     {
                         WaveCommandHelpers.BuzzWaveSlot ws = Clipboard.GetData("BuzzWaveSlot") as WaveCommandHelpers.BuzzWaveSlot;
                         int sourceLayerIndex = WaveCommandHelpers.GetLayerIndex(wt.Waves[ws.SourceSlotIndex].SelectedLayer.Layer); //must save this
-                        WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, ws.Layers, index);
+                        WaveCommandHelpers.ReplaceSlot(wt.Wavetable, ws.Layers, index);
                         Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
                         SelectedLayer = wt.Waves[index].layers[sourceLayerIndex]; //switch to the same layer that was selected in the original
                     }
@@ -175,7 +175,7 @@ namespace BuzzGUI.WavetableView
                     {
                         List<TemporaryWave> Layers = new List<TemporaryWave>();
                         Layers.Add(Clipboard.GetData("BuzzTemporaryWave") as TemporaryWave);
-                        WaveCommandHelpers.CopyWaveSlotToWaveSlot(wt.Wavetable, Layers, index);
+                        WaveCommandHelpers.ReplaceSlot(wt.Wavetable, Layers, index);
                         Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
                         SelectedLayer = wt.Waves[index].layers.FirstOrDefault(); //there's only one layer so switch to it
                     }
@@ -184,52 +184,16 @@ namespace BuzzGUI.WavetableView
                     {
                         // get audio stream 
                         var ms = Clipboard.GetAudioStream();
-                        if (ms == null) return;
-                        libsndfile.SF_INFO msInfo = new SF_INFO();
 
-                        using (var s = new SoundFile(ms, libsndfile.FileMode.SFM_READ, msInfo))
+                        var tw = new TemporaryWave(ms);
+
+                        if (tw != null)
                         {
-                            if (s == null) return;
-
-                            float[] hold = new float[s.FrameCount * s.ChannelCount];
-
-                            var subformat = s.Format & Format.SF_FORMAT_SUBMASK;
-
-                            WaveFormat wf;
-
-                            if (subformat == Format.SF_FORMAT_FLOAT || subformat == Format.SF_FORMAT_DOUBLE) wf = WaveFormat.Float32;
-                            else if (subformat == Format.SF_FORMAT_PCM_32) wf = WaveFormat.Int32;
-                            else if (subformat == Format.SF_FORMAT_PCM_24) wf = WaveFormat.Int24;
-                            else wf = WaveFormat.Int16;
-
-                            s.ReadFloat(hold, s.FrameCount);
-
-                            // write to wavetable
-                            int rootnote = BuzzNote.FromMIDINote(Math.Max(0, s.Instrument.basenote - 12));
-
-                            //TODO possible to set a real path and get the name from the path ?
-                            Wavetable.Wavetable.AllocateWave(index,
-                                                "",
-                                                "Copy",
-                                                (int)(s.FrameCount * s.ChannelCount),
-                                                wf,
-                                                s.ChannelCount == 2,
-                                                rootnote,
-                                                true,
-                                                false);
-
-                            WaveLayerVM lastLayer = Wavetable.Waves[index].Layers.Last();
-
-                            if (s.ChannelCount == 2)
-                            {
-                                lastLayer.Layer.SetDataAsFloat(hold, 0, 2, 0, 0, (int)s.FrameCount);
-                                lastLayer.Layer.SetDataAsFloat(hold, 0, 2, 1, 0, (int)s.FrameCount);
-                            }
-                            else
-                            {
-                                lastLayer.Layer.SetDataAsFloat(hold, 0, 1, 0, 0, (int)s.FrameCount);
-                            }
-                            lastLayer.Layer.InvalidateData();
+                            List<TemporaryWave> Layers = new List<TemporaryWave>();
+                            Layers.Add(tw);
+                            WaveCommandHelpers.ReplaceSlot(wt.Wavetable, Layers, index);
+                            Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
+                            SelectedLayer = wt.Waves[index].layers.FirstOrDefault(); //there's only one layer so switch to it                            
                         }
                     }
                 }
