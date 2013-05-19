@@ -105,7 +105,8 @@
       <Button Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="1" Margin="0,2,0,0" Command="{Binding PasteCommand}">Paste</Button>
       <Button Grid.Row="4" Grid.ColumnSpan="3" Margin="0,2,0,0" Command="{Binding ClearCommand}">Clear</Button>
 
-      <CheckBox Content="Sticky Focus" Grid.ColumnSpan="3" Grid.Row="7" HorizontalAlignment="Left" Margin="4,4,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=Wavetable.StickyFocus}" />
+      <Slider Grid.Row="6" Grid.ColumnSpan="3" ToolTip="Preview Volume" Minimum="-42" Maximum="0" Value="{Binding Path=Wavetable.Wavetable.Volume, Mode=TwoWay}"/>
+      <CheckBox Content="Sticky Focus" Grid.ColumnSpan="3" Grid.Row="5" HorizontalAlignment="Left" Margin="4,4,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=Wavetable.StickyFocus}" />
     </Grid>
 
 
