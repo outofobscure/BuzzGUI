@@ -165,7 +165,13 @@ namespace BuzzGUI.WavetableView
                     if (Clipboard.ContainsData("BuzzWaveSlot"))
                     {
                         WaveCommandHelpers.BuzzWaveSlot ws = Clipboard.GetData("BuzzWaveSlot") as WaveCommandHelpers.BuzzWaveSlot;
-                        int sourceLayerIndex = WaveCommandHelpers.GetLayerIndex(wt.Waves[ws.SourceSlotIndex].SelectedLayer.Layer); //must save this
+                        int sourceLayerIndex = 0;
+
+                        if (wt.Waves[ws.SourceSlotIndex].SelectedLayer != null)
+                        {
+                            sourceLayerIndex = WaveCommandHelpers.GetLayerIndex(wt.Waves[ws.SourceSlotIndex].SelectedLayer.Layer); //must save this
+                        }
+
                         WaveCommandHelpers.ReplaceSlot(wt.Wavetable, ws.Layers, index);
                         Wavetable.SelectedItem = wt.Waves[index]; //need to set this again otherwise there's an exception when editing in the wave editor
                         SelectedLayer = wt.Waves[index].layers[sourceLayerIndex]; //switch to the same layer that was selected in the original
