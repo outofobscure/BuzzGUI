@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BuzzGUI.Interfaces;
+using libsndfile;
 
 namespace BuzzGUI.Common
 {
@@ -72,6 +74,62 @@ namespace BuzzGUI.Common
             index = WaveCommandHelpers.GetLayerIndex(layer);
         }
 
+
+        public TemporaryWave(Stream ms)
+        {
+            // get audio stream 
+            if (ms == null) return;
+            libsndfile.SF_INFO msInfo = new SF_INFO();
+
+            using (var s = new SoundFile(ms, libsndfile.FileMode.SFM_READ, msInfo))
+            {
+                if (s == null) return;
+
+                var subformat = s.Format & libsndfile.Format.SF_FORMAT_SUBMASK;
+                WaveFormat wf;
+
+                if (subformat == libsndfile.Format.SF_FORMAT_FLOAT || subformat == libsndfile.Format.SF_FORMAT_DOUBLE) wf = WaveFormat.Float32;
+                else if (subformat == libsndfile.Format.SF_FORMAT_PCM_32) wf = WaveFormat.Int32;
+                else if (subformat == libsndfile.Format.SF_FORMAT_PCM_24) wf = WaveFormat.Int24;
+                else wf = WaveFormat.Int16;
+
+                if (s.ChannelCount == 1)
+                {
+                    left = new float[s.FrameCount];
+                    s.ReadFloat(left, s.FrameCount);
+                }
+                else if (s.ChannelCount == 2)
+                {
+                    left = new float[s.FrameCount];
+                    right = new float[s.FrameCount];
+                    for (int i = 0; i < s.FrameCount; i++)
+                    {
+                        float[] hold = new float[2];
+                        s.ReadFloat(hold, 1);
+
+                        left[i] = hold[0];
+                        right[i] = hold[1];
+                    }
+                }
+
+
+
+                //TODO use initializewvae
+                int iSampleCount = (int)(s.FrameCount * s.ChannelCount);
+
+                channelCount = s.ChannelCount;
+                format = wf;
+                sampleRate = s.SampleRate;
+                rootNote = BuzzNote.FromMIDINote(Math.Max(0, s.Instrument.basenote - 12)); //TODO re-think
+                sampleCount = iSampleCount;
+                loopStart = 0; //TODO re-think
+                loopEnd = sampleCount; //TODO re-think
+                path = ""; //TODO re-think
+                name = "Copy"; //TODO re-think
+            
+            }
+        }
+
         private void InitializeWave(int iChannelCount, WaveFormat iFormat, int iSampleRate, int iRootNote, int iSampleCount, int iLoopStart, int iLoopEnd, string iPath, string iName)
         {
             channelCount = iChannelCount;
@@ -86,6 +144,15 @@ namespace BuzzGUI.Common
 
             //BuzzGUI.Common.Global.Buzz.DCWriteLine("layername: " + name);
             //BuzzGUI.Common.Global.Buzz.DCWriteLine("layerpath: " + path);
+        }
+
+        public void CopyLeftToRight()
+        {
+            right = new float[sampleCount];
+            for (int i = 0; i < sampleCount; i++)
+            {
+                right[i] = left[i];
+            }
         }
 
         public void GetDataAsFloat(float[] output, int outoffset, int outstride, int channel, int offset, int count)

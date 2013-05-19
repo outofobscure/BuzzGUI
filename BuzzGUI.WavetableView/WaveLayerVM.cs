@@ -128,7 +128,17 @@ namespace BuzzGUI.WavetableView
                     // if contains audio
                     else if (Clipboard.ContainsAudio())
                     {
-                        //TODO SLOT CONVERSION MIGHT BE NECESSARY!
+                        var ms = Clipboard.GetAudioStream();
+                        var tw = new TemporaryWave(ms);
+
+                        int targetSlotIndex = WaveSlot.Wave.Index; //need to save this
+                        int targetLayerIndex = WaveCommandHelpers.GetLayerIndex(layer); //need to save this
+                        //WaveCommandHelpers.AddSelectionToLayer(WaveSlot.Wavetable.Wavetable, targetSlotIndex, targetLayerIndex, 0, tw);
+                        WaveCommandHelpers.ReplaceLayer(WaveSlot.Wavetable.Wavetable, targetSlotIndex, targetLayerIndex, tw);
+
+                        WaveSlot.Wavetable.SelectedItem = WaveSlot.Wavetable.Waves[targetSlotIndex]; //need to set this again otherwise there's an exception when editing in the wave editor
+                        WaveSlot.SelectedLayer = WaveSlot.Wavetable.Waves[targetSlotIndex].Layers[targetLayerIndex]; //get by indices because WaveSlotVM might have changed
+                        BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand CLIPBOARD");
                     }
                     BuzzGUI.Common.Global.Buzz.DCWriteLine("PasteLayerCommand PRESSED");
                 }
