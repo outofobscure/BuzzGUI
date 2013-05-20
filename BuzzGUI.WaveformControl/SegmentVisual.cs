@@ -134,7 +134,6 @@ namespace BuzzGUI.WaveformControl
             {
                 double v = my - points[i].MinNormalized * my;
 
-
                 pf.Segments.Add(new LineSegment(new Point(pw * i, v), true));
 
                 if (i == points.Length - 1)

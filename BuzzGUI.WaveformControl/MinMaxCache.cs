@@ -18,8 +18,8 @@ namespace BuzzGUI.WaveformControl
 
 			public MinMax(float minv, float maxv)
 			{
-				MinValue = (short)(minv * 32768.0f);
-				MaxValue = (short)(maxv * 32768.0f);
+				MinValue = (short)(minv * 32767.0f); //so we can use 1.0 / -1.0 for the clamp
+                MaxValue = (short)(maxv * 32767.0f); //so we can use 1.0 / -1.0 for the clamp
 			}
 
             public double MinNormalized { get { return MinValue / 32768.0; } }
@@ -51,7 +51,6 @@ namespace BuzzGUI.WaveformControl
         {
             length = Math.Min(length, wave.SampleCount - first);
 
-            //short[] buf = wave.GetSamples(first, length);
 			float[] buf = new float[length];
 			wave.GetDataAsFloat(buf, 0, 1, 0, first, length);
 
@@ -60,10 +59,9 @@ namespace BuzzGUI.WaveformControl
 
             for (int i = 0; i < length; i++)
             {
-                var x = buf[i];
+                var x = Math.Min(Math.Max(buf[i], -1.0f), 1.0f); //clamp the waveform so it doesn't wrap around
                 if (x < minf) minf = x;
 				if (x > maxf) maxf = x;
-
             }
 
 			return new MinMax(minf, maxf);
