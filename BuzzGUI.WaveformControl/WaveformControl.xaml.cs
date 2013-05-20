@@ -19,13 +19,14 @@ namespace BuzzGUI.WaveformControl
 	public partial class WaveformControl : UserControl
 	{
         public ICommand ZoomInCommand { get; set; }
+
 		public WaveformControl()
 		{
 			InitializeComponent();
 
 			int mouseWheelAcc = 0;
 
-			this.PreviewMouseWheel += (sender, e) =>
+            this.PreviewMouseWheel += (sender, e) =>
 			{
                 if (waveformElement.Waveform != null)
 				{
@@ -46,6 +47,8 @@ namespace BuzzGUI.WaveformControl
 				}
 
 			};
+    
+            DataContextChanged += new DependencyPropertyChangedEventHandler(OnDataContextChanged);
 
             NameScope.SetNameScope(contextMenu, NameScope.GetNameScope(this));
 
@@ -94,6 +97,16 @@ namespace BuzzGUI.WaveformControl
         {
             Point p = Mouse.GetPosition(Timeline);
             waveformElement.PlayCursor.OffsetSamples = waveformElement.PositionToSample(p.X);
+        }
+
+        void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var x = (WaveformControl)sender;
+            var oldVM = e.OldValue as WaveformVM;
+            var newVM = e.NewValue as WaveformVM;
+
+            BuzzGUI.Common.Global.Buzz.DCWriteLine("OnDataContextChanged");
+            // You can also validate the data going into the DataContext using the event args
         }
 	}
 }

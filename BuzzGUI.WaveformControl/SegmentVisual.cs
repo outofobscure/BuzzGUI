@@ -139,8 +139,7 @@ namespace BuzzGUI.WaveformControl
                 if (i == points.Length - 1)
                     spf2.StartPoint = new Point(pw * i, v);
                 else
-                    spf2.Segments.Add(new LineSegment(new Point(pw * i, v), true));
-                 
+                    spf2.Segments.Add(new LineSegment(new Point(pw * i, v), true));                 
             }
 
             pf.Segments.Add(new LineSegment(new Point(0, my), true));

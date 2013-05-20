@@ -68,8 +68,16 @@ namespace BuzzGUI.WavetableView
             get { return selectedItem; }
             set
             {
+                //unsubscribe the event of the previous item (if there was one)
+                if (selectedItem != null)
+                {
+                    selectedItem.PropertyChanged -= selectedItem_PropertyChanged;
+                }
+                
+                //change the item
                 selectedItem = value;
                 WaveformVm.SelectedWave = value.Wave;
+
                 if (value.SelectedLayer != null)
                 {
                     WaveformVm.Waveform = value.SelectedLayer.Layer;
@@ -79,7 +87,8 @@ namespace BuzzGUI.WavetableView
                     WaveformVm.Waveform = null;
                 }
                 PropertyChanged.RaiseAll(this);
-                selectedItem.PropertyChanged -= selectedItem_PropertyChanged;
+
+                //subscribe to the event again
                 selectedItem.PropertyChanged += selectedItem_PropertyChanged;
             }
         }
@@ -171,6 +180,7 @@ namespace BuzzGUI.WavetableView
             if (i == selectedWaveIndex && waveformVm.Waveform == null)
             {
                 waveformVm.Waveform = SelectedWaveform();
+                //OnPropertyChanged("WaveformVm"); //doesn't work, probably checks if its the same, we should new the waveformVM really
             }
 		}
 

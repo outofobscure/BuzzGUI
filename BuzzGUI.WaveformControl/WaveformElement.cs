@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using BuzzGUI.Common;
 using BuzzGUI.Interfaces;
 using System.Globalization;
 using System.ComponentModel;
@@ -53,19 +54,21 @@ namespace BuzzGUI.WaveformControl
         static void OnWaveformChanged(DependencyObject controlInstance, DependencyPropertyChangedEventArgs args)
         {
             var x = (WaveformElement)controlInstance;
-            var oldval = args.OldValue as IWaveformBase;
-            var newval = args.NewValue as IWaveformBase;
-            //TODO could do with a way of figuring out whether oldval and newval are the same wave
-            x.HandleWaveformChanged(true);
+            var oldLayer = args.OldValue as IWaveformBase;
+            var newLayer = args.NewValue as IWaveformBase;
+            x.HandleWaveformChanged(false); //TODO there's no good way to find out if this is the same wave (especially not if the layer got rebuilt..)
         }
 
         private void HandleWaveformChanged(bool isSameWave)
         {
-            zoomLevel = MaxZoomLevel;
             if (!isSameWave)
             {
-                Selection.Reset(0);
-                PlayCursor.OffsetSamples = 0;
+                if (Waveform != null)
+                {
+                    zoomLevel = MaxZoomLevel;
+                    Selection.Reset(0);
+                    PlayCursor.OffsetSamples = 0;                    
+                }
             }
             WaveformChangeSelectionAndCursorExtracted();
             WaveformChanged();
