@@ -127,6 +127,10 @@ namespace BuzzGUI.Common
                 loopEnd = sampleCount; //TODO re-think
                 path = ""; //TODO re-think
                 name = "Copy"; //TODO re-think
+
+                BuzzGUI.Common.Global.Buzz.DCWriteLine("[libsndfile]\r\n" + s.LogInfo.Replace("\n", "\r\n"));
+                BuzzGUI.Common.Global.Buzz.DCWriteLine(s.Format.ToString());
+                BuzzGUI.Common.Global.Buzz.DCWriteLine(s.Info.format.ToString());
             }
         }
 
