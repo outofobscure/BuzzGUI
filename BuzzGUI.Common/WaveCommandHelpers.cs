@@ -371,14 +371,62 @@ namespace BuzzGUI.Common
 
         public static void ConvertSlotIfNeeded(IWavetable wavetable, int sourceSlotIndex, ref WaveFormat wf, ref int ChannelCount)
         {
-            bool ConvertSlotToFloat = false;
-            bool ConvertSlotToStereo = false;
-
-            if (IsSlotConversionNeeded(wavetable, sourceSlotIndex, ref wf, ref ChannelCount, ref ConvertSlotToFloat, ref ConvertSlotToStereo) == true)
+            //slot conversion is only neccessary if there is at least one layer already
+            if (wavetable.Waves[sourceSlotIndex] != null)
             {
-                WaveCommandHelpers.ConvertSlot(wavetable, sourceSlotIndex, ConvertSlotToFloat, ConvertSlotToStereo); //convert whole slot to 32bit float and/or stereo
+                if (wavetable.Waves[sourceSlotIndex].Layers != null)
+                {
+                    if (wavetable.Waves[sourceSlotIndex].Layers.Count >= 1)
+                    {
+                        bool AllLayersAreFloat = true; //assume they are, but check if they are not
+                        bool AllLayersAreStereo = true; //assume they are, but check if they are not
+                        bool ConvertSlotToFloat = false;
+                        bool ConvertSlotToStereo = false;
+
+                        foreach (var l in wavetable.Waves[sourceSlotIndex].Layers)
+                        {
+                            if (l.Format != WaveFormat.Float32)
+                            {
+                                AllLayersAreFloat = false;
+                            }
+                            if (l.Format != wf && l.Format != WaveFormat.Float32)
+                            {
+                                ConvertSlotToFloat = true; //we need to convert if the formats don't match up and its not already 32 bit float
+                            }
+
+                            if (l.ChannelCount == 1)
+                            {
+                                AllLayersAreStereo = false;
+                            }
+                            if (l.ChannelCount != ChannelCount && l.ChannelCount != 2)
+                            {
+                                ConvertSlotToStereo = true; //we need to convert if the channels don't match up and its not already stereo
+                            }
+                        }
+
+                        if (ConvertSlotToFloat == true || ConvertSlotToStereo == true)
+                        {
+                            BuzzGUI.Common.Global.Buzz.DCWriteLine("CONVERTING SLOT");
+                            WaveCommandHelpers.ConvertSlot(wavetable, sourceSlotIndex, ConvertSlotToFloat, ConvertSlotToStereo); //convert whole slot to 32bit float and/or stereo                        
+                        }
+
+                        //we also need to make sure the new layer matches the format of all the old layers
+                        if (ConvertSlotToFloat == true || AllLayersAreFloat == true)
+                        {
+                            BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE NEW LAYER FLOAT");
+                            wf = WaveFormat.Float32; //also treat the new layer as 32bit float
+                        }
+
+                        if (ConvertSlotToStereo == true || AllLayersAreStereo == true)
+                        {
+                            BuzzGUI.Common.Global.Buzz.DCWriteLine("MAKE NEW LAYER STEREO");
+                            ChannelCount = 2;
+                        }
+                    }
+                }
             }
         }
+
 
         public static void ClearLayer(IWavetable wavetable, int sourceSlotIndex, int sourceLayerIndex)
         {
