@@ -125,12 +125,8 @@ namespace BuzzGUI.Common
                 sampleCount = iSampleCount;
                 loopStart = 0; //TODO re-think
                 loopEnd = sampleCount; //TODO re-think
-                path = ""; //TODO re-think
+                path = "Copy.wav"; //need to set this because we're infering the name from the path in other places TODO re-think
                 name = "Copy"; //TODO re-think
-
-                BuzzGUI.Common.Global.Buzz.DCWriteLine("[libsndfile]\r\n" + s.LogInfo.Replace("\n", "\r\n"));
-                BuzzGUI.Common.Global.Buzz.DCWriteLine(s.Format.ToString());
-                BuzzGUI.Common.Global.Buzz.DCWriteLine(s.Info.format.ToString());
             }
         }
 
