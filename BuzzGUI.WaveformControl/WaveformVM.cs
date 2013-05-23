@@ -25,6 +25,7 @@ namespace BuzzGUI.WaveformControl
         public SaveSelectionCommand SaveSelectionCommand { get; set; }
         public InsertSilenceCommand InsertSilenceCommand { get; set; }
         public SnapToZeroCrossingCommand SnapToZeroCrossingCommand { get; set; }
+        public SelectLoopCommand SelectLoopCommand { get; set; }
 
         public SimpleCommand SelectionChangedCommand { get; set; }
 
@@ -46,6 +47,7 @@ namespace BuzzGUI.WaveformControl
             SaveSelectionCommand = new SaveSelectionCommand(this);
             InsertSilenceCommand = new InsertSilenceCommand(this);
             SnapToZeroCrossingCommand = new SnapToZeroCrossingCommand(this);
+            SelectLoopCommand = new SelectLoopCommand(this);
 
             SelectionChangedCommand = new SimpleCommand()
             {
@@ -68,6 +70,7 @@ namespace BuzzGUI.WaveformControl
                     SaveSelectionCommand.UpdateCanExecute(selection.IsActive());
                     InsertSilenceCommand.UpdateCanExecute(true);
                     SnapToZeroCrossingCommand.UpdateCanExecute(selection.IsActive());
+                    SelectLoopCommand.UpdateCanExecute(true);
                     //SetLoopCommand.UpdateCanExecute(SelectionIsActive());
                 }
             };

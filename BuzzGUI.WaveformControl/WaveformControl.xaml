@@ -78,6 +78,7 @@
                         <MenuItem Header="Looping">
                             <MenuItem Header="Set Loop" Command="{Binding Path=SetLoopCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
                             <MenuItem Header="Snap to zero crossings" Command="{Binding Path=SnapToZeroCrossingCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                            <MenuItem Header="Select Loop" Command="{Binding Path=SelectLoopCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
                         </MenuItem>
                         <MenuItem Header="Editing">
                             <MenuItem Header="Delete" Command="{Binding Path=DeleteEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
