@@ -24,6 +24,7 @@ namespace BuzzGUI.WaveformControl
         public TrimEditCommand TrimEditCommand { get; set; }
         public SaveSelectionCommand SaveSelectionCommand { get; set; }
         public InsertSilenceCommand InsertSilenceCommand { get; set; }
+        public SnapToZeroCrossingCommand SnapToZeroCrossingCommand { get; set; }
 
         public SimpleCommand SelectionChangedCommand { get; set; }
 
@@ -44,6 +45,7 @@ namespace BuzzGUI.WaveformControl
             FadeOutLinearCommand = new FadeEditCommand(this, FadeEditCommand.FadeType.LinOut);
             SaveSelectionCommand = new SaveSelectionCommand(this);
             InsertSilenceCommand = new InsertSilenceCommand(this);
+            SnapToZeroCrossingCommand = new SnapToZeroCrossingCommand(this);
 
             SelectionChangedCommand = new SimpleCommand()
             {
@@ -65,6 +67,7 @@ namespace BuzzGUI.WaveformControl
                     PhaseInvertCommand.UpdateCanExecute(selection.IsActive());
                     SaveSelectionCommand.UpdateCanExecute(selection.IsActive());
                     InsertSilenceCommand.UpdateCanExecute(true);
+                    SnapToZeroCrossingCommand.UpdateCanExecute(selection.IsActive());
                     //SetLoopCommand.UpdateCanExecute(SelectionIsActive());
                 }
             };

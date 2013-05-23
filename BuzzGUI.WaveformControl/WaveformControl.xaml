@@ -66,20 +66,27 @@
                 </l:WaveformElement>
                 <ScrollViewer.ContextMenu>
                     <ContextMenu Name="contextMenu" >
-                        <MenuItem Header="Set Loop" Command="{Binding Path=SetLoopCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
-                        <MenuItem Header="Delete" Command="{Binding Path=DeleteEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
-                        <MenuItem Header="Trim" Command="{Binding Path=TrimEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
-                        <MenuItem Header="SaveSelection" ToolTip="Saves selection to next available waveslot" Command="{Binding Path=SaveSelectionCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
-                        <MenuItem Header="Fade">
-                            <MenuItem Header="Fade In Linear" Command="{Binding Path=FadeInLinearCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
-                            <MenuItem Header="Fade Out Linear" Command="{Binding Path=FadeOutLinearCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
+                        <MenuItem Header="Volume">
+                            <MenuItem Header="Normalize" Command="{Binding Path=NormalizeEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                            <MenuItem Header="Mute" Command="{Binding Path=MuteCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                            <MenuItem Header="Gain" Command="{Binding Path=GainEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                            <MenuItem Header="Fade">
+                                <MenuItem Header="Fade In Linear" Command="{Binding Path=FadeInLinearCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
+                                <MenuItem Header="Fade Out Linear" Command="{Binding Path=FadeOutLinearCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
+                            </MenuItem>
+                        </MenuItem>
+                        <MenuItem Header="Looping">
+                            <MenuItem Header="Set Loop" Command="{Binding Path=SetLoopCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                            <MenuItem Header="Snap to zero crossings" Command="{Binding Path=SnapToZeroCrossingCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        </MenuItem>
+                        <MenuItem Header="Editing">
+                            <MenuItem Header="Delete" Command="{Binding Path=DeleteEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                            <MenuItem Header="Trim" Command="{Binding Path=TrimEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                            <MenuItem Header="SaveSelection" ToolTip="Saves selection to next available waveslot" Command="{Binding Path=SaveSelectionCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}" />
+                            <MenuItem Header="Insert Silence" Command="{Binding Path=InsertSilenceCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
                         </MenuItem>
                         <MenuItem Header="Reverse" Command="{Binding Path=ReverseEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
-                        <MenuItem Header="Normalize" Command="{Binding Path=NormalizeEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
-                        <MenuItem Header="Mute" Command="{Binding Path=MuteCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
-                        <MenuItem Header="Gain" Command="{Binding Path=GainEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
                         <MenuItem Header="Phase Invert" Command="{Binding Path=PhaseInvertCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
-                        <MenuItem Header="Insert Silence" Command="{Binding Path=InsertSilenceCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
                     </ContextMenu>
                 </ScrollViewer.ContextMenu>
             </ScrollViewer>
