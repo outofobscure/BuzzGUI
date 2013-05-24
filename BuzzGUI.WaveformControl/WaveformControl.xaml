@@ -88,6 +88,7 @@
                         </MenuItem>
                         <MenuItem Header="Reverse" Command="{Binding Path=ReverseEditCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
                         <MenuItem Header="Phase Invert" Command="{Binding Path=PhaseInvertCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
+                        <MenuItem Header="DC Remove" Command="{Binding Path=DCRemoveCommand}" CommandParameter="{Binding ElementName=waveformElement, Path=WaveformSelectionTuple}"/>
                     </ContextMenu>
                 </ScrollViewer.ContextMenu>
             </ScrollViewer>

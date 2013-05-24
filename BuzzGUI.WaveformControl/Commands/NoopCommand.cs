@@ -90,6 +90,7 @@ namespace BuzzGUI.WaveformControl
                 CanExecuteChanged(this, null);
         }
 
+        // mono process
 		protected void Process(object parameter, Func<float[], int, float> f)
 		{
 			var param = parameter as Tuple<IWaveformBase, WaveformSelection>;
@@ -114,6 +115,32 @@ namespace BuzzGUI.WaveformControl
 
 			wave.InvalidateData();
 		}
+
+        // stereo process
+        protected void Process(object parameter, Func<float[], int, float> f, Func<float[], int, float> g)
+        {
+            var param = parameter as Tuple<IWaveformBase, WaveformSelection>;
+            if (param == null) return;
+            var Selection = param.Item2 as WaveformSelection;
+            var wave = param.Item1 as IWaveformBase;
+            if (Selection == null || wave == null) return;
+
+            var src = new float[Selection.LengthInSamples];
+            var dst = new float[Selection.LengthInSamples];
+
+            wave.GetDataAsFloat(src, 0, 1, 0, Selection.StartSample, Selection.LengthInSamples);
+            for (int i = 0; i < src.Length; i++) dst[i] = f(src, i);
+            wave.SetDataAsFloat(dst, 0, 1, 0, Selection.StartSample, Selection.LengthInSamples);
+
+            if (wave.ChannelCount == 2)
+            {
+                wave.GetDataAsFloat(src, 0, 1, 1, Selection.StartSample, Selection.LengthInSamples);
+                for (int i = 0; i < src.Length; i++) dst[i] = g(src, i);
+                wave.SetDataAsFloat(dst, 0, 1, 1, Selection.StartSample, Selection.LengthInSamples);
+            }
+
+            wave.InvalidateData();
+        }
 
 		// NOTE: this is stereo aggregate followed by mono process originally written for NormalizeCommand. you can create variations of this as needed.
 		protected void Process<T>(object parameter, T state, Func<T, float[], int, T> aggregate, Func<T, float[], int, float> f)
