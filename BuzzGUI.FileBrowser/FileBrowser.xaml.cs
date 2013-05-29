@@ -352,5 +352,13 @@ namespace BuzzGUI.FileBrowser
 		}
 		#endregion
 
+        private void OpenFileLocation_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentPath != "")
+            {
+                System.Diagnostics.Process.Start(System.IO.Path.GetDirectoryName(currentPath));
+            }
+        }
+
 	}
 }

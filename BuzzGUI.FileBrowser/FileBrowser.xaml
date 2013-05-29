@@ -32,13 +32,15 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="2"/>
+        <ColumnDefinition Width="90"/>
+        <ColumnDefinition Width="2"/>
         <ColumnDefinition Width="140"/>
       </Grid.ColumnDefinitions>
       <l:PathControl Grid.Column="0" x:Name="pathControl"/>
       <TextBox Grid.Column="0" Name="textBox" Grid.Row="0" Text="{Binding Path=CurrentPath,Mode=OneWay}" Visibility="Collapsed" Height="{Binding ElementName=pathControl, Path=ActualHeight}"/>
-
-      <TextBox Grid.Column="2" Name="searchBox"/>
-      <TextBlock Grid.Column="2" Name="searchText" VerticalAlignment="Center" Margin="4,0,0,0" IsHitTestVisible="False" Opacity="0.2" FontStyle="Italic">Search</TextBlock>
+      <Button Name="OpenFileLocation" Grid.Column="2" Click="OpenFileLocation_Click">Open Location</Button>
+      <TextBox Grid.Column="4" Name="searchBox"/>
+      <TextBlock Grid.Column="4" Name="searchText" VerticalAlignment="Center" Margin="4,0,0,0" IsHitTestVisible="False" Opacity="0.2" FontStyle="Italic">Search</TextBlock>
       
     </Grid>
     
