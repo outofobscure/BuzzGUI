@@ -356,7 +356,7 @@ namespace BuzzGUI.FileBrowser
         {
             if (currentPath != "")
             {
-                System.Diagnostics.Process.Start(System.IO.Path.GetDirectoryName(currentPath));
+                System.Diagnostics.Process.Start(currentPath);
             }
         }
 
