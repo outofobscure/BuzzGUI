@@ -17,6 +17,9 @@ namespace BuzzGUI.WaveformControl.Commands
                 int inStart, inEnd, dist, curStart, curEnd;
                 Nullable<bool> isRising = null; // true for -0+, false for +0-
                 Nullable<bool> startFirst = null; // true for start, false for end
+                bool isCompleted = false;
+                bool startFound = false;
+                bool endFound = false;
                 
                 TemporaryWave wave = new TemporaryWave(WaveformVm.Waveform);
 
@@ -24,35 +27,58 @@ namespace BuzzGUI.WaveformControl.Commands
                 inEnd = curEnd = Selection.EndSample;
                 dist = 0;
 
-                // search outwards from current selection point for zero crossings
-                while(((inStart - dist) > 0) && ((inEnd + dist) < Waveform.SampleCount))
-                {
+                // check for starting at an endpoint
+                if(inStart == 0)
+                    startFirst = isRising = true;
+                if(inEnd == wave.SampleCount)
+                    startFirst = isRising = false;
+
+                // find the largest distance to sample end points
+                int longestEdge;
+
+                if((wave.SampleCount - inEnd) > inStart)
+                    longestEdge = wave.SampleCount - inEnd;
+                else
+                    longestEdge = inStart;
+
+                // search for zero crossings
+                for(int i = 0; (i < (longestEdge-1)) && !isCompleted; i++) {
+
+                    // check for hitting end points with out having a matching endpoint
+                    if (((inStart - i) == 0) && (startFirst != true))
+                        // exit loop
+                        break;
+
+                    if (((inEnd + i) == wave.SampleCount) && (startFirst != false))
+                        // exit loop
+                        break;
+
                     // check for first crossing, if one found, remember direction
                     if (startFirst == null)
                     {
                         // check start then end
-                        if ((wave.Left[inStart - dist - 1] < 0) && (wave.Left[inStart - dist] > 0))
+                        if ((wave.Left[inStart - i - 1] < 0) && (wave.Left[inStart - i] > 0))
                         {
                             // start is rising
                             isRising = true;
                             startFirst = true;
                             curStart = inStart - dist;
                         }
-                        else if ((wave.Left[inStart - dist - 1] > 0) && (wave.Left[inStart - dist] < 0))
+                        else if ((wave.Left[inStart - i - 1] > 0) && (wave.Left[inStart - i] < 0))
                         {
                             // start is falling
                             isRising = false;
                             startFirst = true;
                             curStart = inStart - dist;
                         }
-                        else if ((wave.Left[inEnd + dist] < 0) && (wave.Left[inEnd + dist + 1] > 0))
+                        else if ((wave.Left[inEnd + i] < 0) && (wave.Left[inEnd + i + 1] > 0))
                         {
                             // end is rising
                             isRising = true;
                             startFirst = false;
                             curEnd = inEnd + dist;
                         }
-                        else if ((wave.Left[inEnd + dist] > 0) && (wave.Left[inEnd + dist + 1] < 0))
+                        else if ((wave.Left[inEnd + i] > 0) && (wave.Left[inEnd + i + 1] < 0))
                         {
                             // end is falling
                             isRising = false;
@@ -67,33 +93,33 @@ namespace BuzzGUI.WaveformControl.Commands
                         if (startFirst == true)
                         {
                             // check for zero crossings at end
-                            if ((isRising == true) && (wave.Left[inEnd + dist] < 0) && (wave.Left[inEnd + dist + 1] > 0))
+                            if ((isRising == true) && (wave.Left[inEnd + i] < 0) && (wave.Left[inEnd + i + 1] > 0))
                             {
                                 // end is rising
                                 curEnd = inEnd + dist;
-                                break;
+                                isCompleted = true;
                             }
-                            else if ((isRising == false) && (wave.Left[inEnd + dist] > 0) && (wave.Left[inEnd + dist + 1] < 0))
+                            else if ((isRising == false) && (wave.Left[inEnd + i] > 0) && (wave.Left[inEnd + i + 1] < 0))
                             {
                                 // end is falling
                                 curEnd = inEnd + dist;
-                                break;
+                                isCompleted = true;
                             }
                         }
                         else
                         {
                             // check for zero crossings at start
-                            if ((isRising == true) && (wave.Left[inStart - dist - 1] < 0) && (wave.Left[inStart - dist] > 0))
+                            if ((isRising == true) && (wave.Left[inStart - i - 1] < 0) && (wave.Left[inStart - i] > 0))
                             {
                                 // start is rising
                                 curStart = inStart - dist;
-                                break;
+                                isCompleted = true;
                             }
-                            else if ((isRising == false) && (wave.Left[inStart - dist - 1] > 0) && (wave.Left[inStart - dist] < 0))
+                            else if ((isRising == false) && (wave.Left[inStart - i - 1] > 0) && (wave.Left[inStart - i] < 0))
                             {
                                 // start is falling
                                 curStart = inStart - dist;
-                                break;
+                                isCompleted = true;
                             }
                         }
                     }
@@ -102,8 +128,11 @@ namespace BuzzGUI.WaveformControl.Commands
                 }
 
                 // update selection
-                Selection.StartSample = curStart;
-                Selection.EndSample = curEnd;
+                if (isCompleted == true)
+                {
+                    Selection.StartSample = curStart;
+                    Selection.EndSample = curEnd;
+                }
 			}
 		}
     }
